@@ -19,6 +19,13 @@ function install_phoenix {
   mix archive.install hex phx_new 1.4.0 --force
 }
 
+function configure_postgress {
+  user=`whoami`
+  sudo su postgres -c "createuser --superuser $user"
+  sudo service postgresql start
+  sudo -u postgres PGPASSWORD=postgres psql -c "alter user postgres with password 'postgres';"
+}
+
 function install_packages {
   sudo apt update
   sudo apt install \
@@ -27,6 +34,7 @@ function install_packages {
   postgresql-11 \
   postgresql-client-11 \
   inotify-tools \
+  npm \
   -y
 }
 
@@ -36,3 +44,4 @@ install_beautifier_prerequisites
 run_action add_elixir_repo
 run_action install_packages
 run_action install_phoenix
+run_action configure_postgress
