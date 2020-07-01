@@ -13,6 +13,10 @@ defmodule GameControllerWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :logged_in do
+    plug GameControllerWeb.Plugs.LoggedIn
+  end
+
   scope "/", GameControllerWeb do
     pipe_through :browser
 
@@ -22,24 +26,16 @@ defmodule GameControllerWeb.Router do
       get "/", LoginController, :show
       post "/", LoginController, :create
     end
-  end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", GameControllerWeb do
-  #   pipe_through :api
-  # end
+    scope "/" do
+      pipe_through :logged_in
 
-  # Enables LiveDashboard only for development
-  #
-  # If you want to use the LiveDashboard in production, you should put
-  # it behind authentication and allow only admins to access it.
-  # If your application does not have an admins-only section yet,
-  # you can use Plug.BasicAuth to set up some basic authentication
-  # as long as you are also using SSL (which you should anyway).
-  import Phoenix.LiveDashboard.Router
+      import Phoenix.LiveDashboard.Router
+      live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry
 
-  scope "/" do
-    pipe_through :browser
-    live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry
+      scope "/main-page" do
+        get "/", MainPageController, :show
+      end
+    end
   end
 end

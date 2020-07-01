@@ -1,6 +1,6 @@
 defmodule GameControllerWeb.LoginController do
   use GameControllerWeb, :controller
-  alias GameController.Users
+  alias GameController.{Users, Password}
 
   def show(conn, _params) do
     render(conn, "show.html")
@@ -8,13 +8,15 @@ defmodule GameControllerWeb.LoginController do
 
   def create(conn, %{"email" => email, "password" => password}) do
     case Users.login(email, password) do
-      {:ok, user} ->
+      {:ok, %{id: id, email: email}} ->
         conn
-        |> put_flash(:info, "that worked, but there's no pages after this :-|")
-        |> render("show.html")
+        |> Password.add_user_session(id, email)
+        |> redirect(to: Routes.main_page_path(conn, :show))
 
-      {:error, _} ->
-        conn |> put_flash(:error, "bad credentials. try again m8") |> render("show.html")
+      :error ->
+        conn
+        |> put_flash(:error, "bad credentials. try again m8")
+        |> redirect(to: Routes.login_path(conn, :show))
     end
   end
 end

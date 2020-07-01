@@ -15,13 +15,13 @@ defmodule GameController.Users do
     if Password.check(clear_text_password, hashed_password) do
       {:ok, %{id: id, email: email}}
     else
-      {:error, :wrong_password}
+      :error
     end
   end
 
   defp fetch_hashed_password_for_email(email) do
     case Repo.one(from u in "users", where: u.email == ^email, select: [:id, :password, :email]) do
-      nil -> {:error, :user_not_found_by_email}
+      nil -> :error
       user -> {:ok, user}
     end
   end
