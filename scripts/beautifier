@@ -1,0 +1,90 @@
+#!/bin/bash
+
+spinner()
+{
+  while true; do
+    log_success "."
+    sleep 0.5
+  done
+}
+
+show_result() {
+  if [[ $result != 0 ]]; then
+    log_failure "failed :*(\n"
+    echo -e "$output"
+    log_failure "************************************************\n"
+    log_failure "*** At least one thing in \"$action\" is broken ***\n"
+    log_failure "************************************************\n"
+    exit -1
+  else
+    log_success "ok!"
+    [[ $TERM != "dumb" ]] && printf "\e[32m (%.2f seconds)\n\e[39m" $duration || printf "(%.2f seconds)\n" $duration
+  fi
+}
+
+run_clean() {
+  log_info "Running \"$action\""
+  spinner&
+  spinner_pid=$!
+  output=$(eval $action 2>&1)
+  result=$?
+  kill $spinner_pid
+  wait $spinner_pid 2>/dev/null
+}
+
+run_verbose() {
+  echo ""
+  log_running $action
+  eval $action
+  result=$?
+  output=""
+}
+
+log_running() {
+  log_info "------------------------------------------------\n"
+  log_info "Running \"$1\"\n"
+  log_info "------------------------------------------------\n"
+}
+
+run_action() {
+  action=$1
+  start_time=$(date +%s.%N)
+  if [[ $VERBOSE ]]; then
+    run_verbose
+  else
+    run_clean
+  fi
+  end_time=$(date +%s.%N)
+  duration=$(echo "$(date +%s.%N) - $start_time" | bc)
+  show_result
+}
+
+log_failure() {
+  [[ $TERM != "dumb" ]] && printf -- "\e[31m$1\e[39m" || boring_log "$1"
+}
+
+log_success() {
+  [[ $TERM != "dumb" ]] && printf -- "\e[32m$1\e[39m" || boring_log "$1"
+}
+
+log_info() {
+  [[ $TERM != "dumb" ]] && printf -- "\e[35m$1\e[39m" || boring_log "$1"
+}
+
+log_banner(){
+  [[ $TERM != "dumb" ]]&& printf -- "\e[36m$1\e[39m" || boring_log "$1"
+}
+
+boring_log() {
+  printf -- "$1"
+}
+
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case "$key" in
+    -v|--verbose)
+      VERBOSE=true
+    ;;
+  esac
+  shift
+done

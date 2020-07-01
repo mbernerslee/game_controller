@@ -1,0 +1,38 @@
+#!/bin/bash
+
+function install_beautifier_prerequisites {
+  sudo apt install bc -y
+}
+
+function add_elixir_repo {
+  if ! dpkg -l elixir
+  then
+    wget https://packages.erlang-solutions.com/erlang-solutions_2.0_all.deb
+    sudo dpkg -i erlang-solutions_2.0_all.deb
+    rm erlang-solutions_2.0_all.deb
+  fi
+}
+
+function install_phoenix {
+  mix local.hex --force --if-missing -y
+  mix local.rebar --force
+  mix archive.install hex phx_new 1.4.0 --force
+}
+
+function install_packages {
+  sudo apt update
+  sudo apt install \
+  erlang \
+  elixir \
+  postgresql-11 \
+  postgresql-client-11 \
+  inotify-tools \
+  -y
+}
+
+install_beautifier_prerequisites
+. ./scripts/beautifier
+
+run_action add_elixir_repo
+run_action install_packages
+run_action install_phoenix
