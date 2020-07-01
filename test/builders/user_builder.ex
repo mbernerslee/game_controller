@@ -1,0 +1,46 @@
+defmodule GameController.UserBuilder do
+  alias GameController.{Password, Repo}
+
+  def build do
+    default_timestamps(%{email: generate_unique_email(), password: "password"})
+  end
+
+  def generate_unique_email do
+    generate_unique_email("cool_email@domain.com")
+  end
+
+  def generate_unique_email(email) do
+    [email, domain] = String.split(email, "@")
+    Enum.join([email, System.unique_integer([:positive]), "@", domain])
+  end
+
+  def with_password(user, password) do
+    Map.put(user, :password, password)
+  end
+
+  def with_non_unqiued_email(user, email) do
+    Map.put(user, :email, email)
+  end
+
+  def with_email(user, email) do
+    email = generate_unique_email(email)
+    Map.put(user, :email, email)
+  end
+
+  def insert(user, opts \\ []) do
+    returning = Keyword.get(opts, :returning, [:id])
+
+    user =
+      user
+      |> Map.update!(:password, fn password -> Password.hash(password) end)
+      |> default_timestamps()
+
+    {1, [user]} = Repo.insert_all("users", [user], returning: returning)
+    user
+  end
+
+  defp default_timestamps(user) do
+    now = DateTime.utc_now()
+    Map.merge(%{inserted_at: now, updated_at: now}, user)
+  end
+end
