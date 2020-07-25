@@ -5,11 +5,11 @@ defmodule GameControllerWeb.Plugs.LoggedIn do
     opts
   end
 
-  def call(conn, _opts) do
-    IO.inspect(conn.assigns)
-
+  def call(conn, _opts \\ []) do
     if conn.assigns == %{} do
-      redirect(conn, to: Routes.login_path(conn, :show))
+      conn
+      |> redirect(to: Routes.login_path(conn, :show))
+      |> halt()
     else
       conn
     end
