@@ -1,11 +1,10 @@
-# Script for populating the database. You can run it as:
-#
-#     mix run priv/repo/seeds.exs
-#
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     GameController.Repo.insert!(%GameController.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+alias GameController.UserBuilder
+alias GameController.Repo
+alias Ecto.Adapters.SQL
+
+SQL.query!(Repo, "TRUNCATE users CASCADE", [])
+
+UserBuilder.build()
+|> UserBuilder.with_non_unqiued_email("user@example.com")
+|> UserBuilder.with_password("password")
+|> UserBuilder.insert()
