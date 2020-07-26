@@ -27,8 +27,6 @@ defmodule GameControllerWeb.Router do
     scope "/" do
       pipe_through :logged_out
 
-      get "/", LoginController, :show
-
       scope "/login" do
         get "/", LoginController, :show
         post "/", LoginController, :create
@@ -37,6 +35,8 @@ defmodule GameControllerWeb.Router do
 
     scope "/" do
       pipe_through :logged_in
+
+      get "/", MainPageController, :show
 
       import Phoenix.LiveDashboard.Router
       live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry

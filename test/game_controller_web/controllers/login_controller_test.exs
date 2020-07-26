@@ -14,6 +14,23 @@ defmodule GameControllerWeb.LoginControllerTest do
              |> Enum.member?({"h1", [], ["Login page biiitchhhhhhhh!!"]})
     end
 
+    test "renders only not logged in navbar links", %{conn: conn} do
+      navbar_links =
+        conn
+        |> get(Routes.login_path(conn, :show))
+        |> html_response(200)
+        |> Floki.parse_document!()
+        |> Floki.find("nav")
+        |> Floki.find("ul")
+        |> Floki.find("li")
+        |> Floki.find("a")
+        |> Floki.attribute("href")
+
+      assert Enum.member?(navbar_links, Routes.login_path(conn, :show))
+
+      refute Enum.member?(navbar_links, Routes.live_dashboard_path(conn, :home))
+    end
+
     test "redirects if already logged in", %{conn: conn} do
       conn = TestSetup.logged_in_user_conn(conn)
 

@@ -13,10 +13,14 @@
       <section class="container">
         <nav role="navigation">
           <ul>
+            <% logged_in = Auth.has_session?(@conn) %>
             <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+              <%= if logged_in do %>
+                <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+              <% else %>
+                <li><%= link "Login", to: Routes.login_path(@conn, :show) %></li>
+              <% end %>
             <% end %>
-            <li><%= link "Login", to: Routes.login_path(@conn, :show) %></li>
           </ul>
         </nav>
       </section>
