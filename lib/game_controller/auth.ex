@@ -1,8 +1,9 @@
 defmodule GameController.Auth do
   alias Plug.Conn
 
-  def hash(password), do: Bcrypt.hash_pwd_salt(password)
-  def check(clear_text, hashed), do: Bcrypt.verify_pass(clear_text, hashed)
+  def hash_password(password), do: Bcrypt.hash_pwd_salt(password)
+
+  def check_password(clear_text, hashed), do: Bcrypt.verify_pass(clear_text, hashed)
 
   def set_session(conn, id, email) do
     conn

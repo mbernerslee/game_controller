@@ -2,6 +2,7 @@ defmodule GameControllerWeb.LoginControllerTest do
   use GameControllerWeb.ConnCase, async: true
 
   alias GameController.UserBuilder
+  alias GameController.TestSetup
 
   describe "show/2" do
     test "renders the login page", %{conn: conn} do
@@ -11,6 +12,15 @@ defmodule GameControllerWeb.LoginControllerTest do
              |> Floki.parse_document!()
              |> Floki.find("h1")
              |> Enum.member?({"h1", [], ["Login page biiitchhhhhhhh!!"]})
+    end
+
+    test "redirects if already logged in", %{conn: conn} do
+      conn = TestSetup.logged_in_user_conn(conn)
+
+      assert conn
+             |> TestSetup.logged_in_user_conn()
+             |> get(Routes.login_path(conn, :show))
+             |> redirected_to(302) == "/"
     end
   end
 

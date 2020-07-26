@@ -17,14 +17,22 @@ defmodule GameControllerWeb.Router do
     plug GameControllerWeb.Plugs.LoggedIn
   end
 
+  pipeline :logged_out do
+    plug GameControllerWeb.Plugs.LoggedOut
+  end
+
   scope "/", GameControllerWeb do
     pipe_through :browser
 
-    get "/", LoginController, :show
+    scope "/" do
+      pipe_through :logged_out
 
-    scope "/login" do
       get "/", LoginController, :show
-      post "/", LoginController, :create
+
+      scope "/login" do
+        get "/", LoginController, :show
+        post "/", LoginController, :create
+      end
     end
 
     scope "/" do

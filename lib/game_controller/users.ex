@@ -12,7 +12,7 @@ defmodule GameController.Users do
   defp check_password(user, clear_text_password) do
     %{email: email, password: hashed_password, id: id} = user
 
-    if Auth.check(clear_text_password, hashed_password) do
+    if Auth.check_password(clear_text_password, hashed_password) do
       {:ok, %{id: id, email: email}}
     else
       :error

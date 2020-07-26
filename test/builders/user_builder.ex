@@ -32,7 +32,7 @@ defmodule GameController.UserBuilder do
 
     user =
       user
-      |> Map.update!(:password, fn password -> Auth.hash(password) end)
+      |> Map.update!(:password, fn password -> Auth.hash_password(password) end)
       |> default_timestamps()
 
     {1, [user]} = Repo.insert_all("users", [user], returning: returning)
