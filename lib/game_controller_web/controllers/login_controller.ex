@@ -1,6 +1,6 @@
 defmodule GameControllerWeb.LoginController do
   use GameControllerWeb, :controller
-  alias GameController.{Users, Password}
+  alias GameController.{Users, Auth}
 
   def show(conn, _params) do
     render(conn, "show.html")
@@ -10,7 +10,7 @@ defmodule GameControllerWeb.LoginController do
     case Users.login(email, password) do
       {:ok, %{id: id, email: email}} ->
         conn
-        |> Password.add_user_session(id, email)
+        |> Auth.set_session(id, email)
         |> redirect(to: Routes.main_page_path(conn, :show))
 
       :error ->

@@ -1,5 +1,5 @@
 defmodule GameController.UserBuilder do
-  alias GameController.{Password, Repo}
+  alias GameController.{Auth, Repo}
 
   def build do
     default_timestamps(%{email: generate_unique_email(), password: "password"})
@@ -32,7 +32,7 @@ defmodule GameController.UserBuilder do
 
     user =
       user
-      |> Map.update!(:password, fn password -> Password.hash(password) end)
+      |> Map.update!(:password, fn password -> Auth.hash(password) end)
       |> default_timestamps()
 
     {1, [user]} = Repo.insert_all("users", [user], returning: returning)
