@@ -60,19 +60,11 @@ defmodule GameController.MixProject do
   #
   # See the documentation for `Mix` for more info on aliases.
 
-  defp drop_create_migrate_test(_args) do
-    Mix.Task.run("cmd", ["MIX_ENV=test mix test.drop_create_migrate_test"])
-  end
-
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test.drop_create_migrate_test": ["ecto.drop", "ecto.create", "ecto.migrate", "test"],
-      "test.from_clean": &drop_create_migrate_test/1,
       "ecto.seed": ["run priv/repo/seeds.exs"],
-      "ecto.clean": ["ecto.drop", "ecto.create", "ecto.migrate", "ecto.seed"]
+      "ecto.clean": ["ecto.drop", "ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.clean", "ecto.seed"]
     ]
   end
 end

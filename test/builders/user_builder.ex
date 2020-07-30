@@ -1,8 +1,14 @@
 defmodule GameController.UserBuilder do
-  alias GameController.{Auth, Repo}
+  alias GameController.{Auth, Repo, UniqueEmailGenerator}
+
+  @verification_key String.duplicate("A", 32)
 
   def build do
-    default_timestamps(%{email: generate_unique_email(), password: "password"})
+    default_timestamps(%{
+      email: UniqueEmailGenerator.generate(),
+      password: "password",
+      verification_key: @verification_key
+    })
   end
 
   def with_password(user, password) do
@@ -14,17 +20,8 @@ defmodule GameController.UserBuilder do
   end
 
   def with_email(user, email) do
-    email = generate_unique_email(email)
+    email = UniqueEmailGenerator.generate(email)
     Map.put(user, :email, email)
-  end
-
-  defp generate_unique_email do
-    generate_unique_email("cool_email@domain.com")
-  end
-
-  defp generate_unique_email(email) do
-    [email, domain] = String.split(email, "@")
-    Enum.join([email, System.unique_integer([:positive]), "@", domain])
   end
 
   def insert(user, opts \\ []) do

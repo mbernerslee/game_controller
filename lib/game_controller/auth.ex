@@ -19,4 +19,10 @@ defmodule GameController.Auth do
       _ -> false
     end
   end
+
+  def generate_verification_key do
+    16
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode16(case: :lower)
+  end
 end

@@ -5,6 +5,7 @@ defmodule GameController.Repo.Migrations.AddUsersTable do
     create table("users") do
       add :email, :string, null: false
       add :password, :string, null: false
+      add :verification_key, :string, null: false
       timestamps()
     end
 

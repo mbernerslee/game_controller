@@ -1,7 +1,8 @@
 defmodule GameController.UsersTest do
   use GameController.DataCase, async: true
 
-  alias GameController.{Users, UserBuilder}
+  alias Ecto.Changeset
+  alias GameController.{Users, UserBuilder, AllowedUserEmailsBuilder, User}
 
   describe "users table database structure" do
     test "cannot have two users with the same email address" do
@@ -38,6 +39,43 @@ defmodule GameController.UsersTest do
 
     test "given an NON EXISTANT user email returns error" do
       assert :error == Users.login("jank@email.com", "WRONG PASSWORD!!")
+    end
+  end
+
+  @valid_password "passworD1"
+
+  describe "signup/2" do
+    test "with an allowed user email in the DB and no existing user, creates the user" do
+      %{email: email} = AllowedUserEmailsBuilder.insert_arbitrary(returning: [:email])
+      assert {:ok, user} = Users.signup(email, @valid_password)
+
+      actual_user = Repo.one!(from u in User, where: u.email == ^email)
+      assert actual_user.verification_key
+      assert actual_user.password
+    end
+
+    test "when all is allowed but its clearly a jank email, return errored changeset" do
+      %{email: email} =
+        AllowedUserEmailsBuilder.build()
+        |> AllowedUserEmailsBuilder.with_non_unqiued_email("not_a_valid_email")
+        |> AllowedUserEmailsBuilder.insert(returning: [:email])
+
+      assert {:error, %Changeset{}} = Users.signup(email, @valid_password)
+    end
+
+    test "when erroring because user already exists returns :error" do
+      %{email: email} = AllowedUserEmailsBuilder.insert_arbitrary(returning: [:email])
+
+      UserBuilder.build()
+      |> UserBuilder.with_non_unqiued_email(email)
+      |> UserBuilder.with_password(@valid_password)
+      |> UserBuilder.insert()
+
+      assert :error = Users.signup(email, @valid_password)
+    end
+
+    test "when erroring because user email isn't allowed returns :error" do
+      assert :error = Users.signup("valid_email@domain.com", @valid_password)
     end
   end
 end

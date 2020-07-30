@@ -24,12 +24,26 @@ defmodule GameControllerWeb.Router do
   scope "/", GameControllerWeb do
     pipe_through :browser
 
+    if Mix.env() in [:dev, :test] do
+      get "/test-logins", TestLoginsController, :show
+      put "/test-logins", TestLoginsController, :reseed
+    end
+
     scope "/" do
       pipe_through :logged_out
 
       scope "/login" do
         get "/", LoginController, :show
         post "/", LoginController, :create
+      end
+
+      scope "/signup" do
+        get "/", SignupController, :show
+        post "/", SignupController, :create
+      end
+
+      scope "/verify-email" do
+        get "/", VerifyEmailController, :show
       end
     end
 

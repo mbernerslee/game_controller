@@ -41,4 +41,14 @@ defmodule GameControllerWeb.AuthTest do
       refute Auth.check_password(clear_text, "jank")
     end
   end
+
+  describe "generate_verification_key/0" do
+    test "generates a random 32 character string" do
+      key1 = Auth.generate_verification_key()
+      key2 = Auth.generate_verification_key()
+      assert String.length(key1) == 32
+      assert String.length(key2) == 32
+      assert key1 != key2
+    end
+  end
 end

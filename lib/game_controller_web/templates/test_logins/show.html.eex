@@ -1,0 +1,14 @@
+<h1>Test account logins</h1>
+<%= button "Reset seed data", to: Routes.test_logins_path(@conn, :reseed), method: :put %>
+<table>
+  <tr>
+    <th>email</th>
+    <th>description</th>
+  </tr>
+  <%= for %{email: email, description: description} <- Seeds.logins() do %>
+    <tr>
+      <td><%= email %></td>
+      <td><%= description %></td>
+    </tr>
+  <% end %>
+</table>
