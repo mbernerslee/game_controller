@@ -1,4 +1,4 @@
-defmodule GameControllerWeb.LoginControllerTest do
+defmodule GameControllerWeb.TestLoginsControllerTest do
   use GameControllerWeb.ConnCase, async: true
 
   describe "show/2" do

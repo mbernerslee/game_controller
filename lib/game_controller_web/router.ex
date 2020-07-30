@@ -52,6 +52,7 @@ defmodule GameControllerWeb.Router do
 
       get "/", MainPageController, :show
 
+      # TODO add logging out
       import Phoenix.LiveDashboard.Router
       live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry
 
