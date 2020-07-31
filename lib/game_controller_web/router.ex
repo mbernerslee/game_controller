@@ -34,6 +34,7 @@ defmodule GameControllerWeb.Router do
 
       scope "/login" do
         get "/", LoginController, :show
+        # TODO maybe just make this a get?
         post "/", LoginController, :create
       end
 
@@ -51,13 +52,17 @@ defmodule GameControllerWeb.Router do
       pipe_through :logged_in
 
       get "/", MainPageController, :show
+      post "/", LoginController, :delete
 
-      # TODO add logging out
       import Phoenix.LiveDashboard.Router
       live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry
 
       scope "/main-page" do
         get "/", MainPageController, :show
+
+        scope "/power" do
+          post "/get-status", MainPageController, :power_status
+        end
       end
     end
   end

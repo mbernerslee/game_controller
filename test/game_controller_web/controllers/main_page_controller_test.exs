@@ -20,6 +20,20 @@ defmodule GameControllerWeb.MainPageControllerTest do
       refute Enum.member?(navbar_links, Routes.login_path(conn, :show))
 
       assert Enum.member?(navbar_links, Routes.live_dashboard_path(conn, :home))
+      assert Enum.member?(navbar_links, Routes.login_path(conn, :delete))
+    end
+  end
+
+  describe "power_status/2" do
+    test "rerenders the main page", %{conn: conn} do
+      assert conn
+             |> TestSetup.logged_in_user_conn()
+             |> post(Routes.main_page_path(conn, :power_status))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("h1")
+             |> Floki.text() ==
+               " Yeay. main page mothertruckkerrr "
     end
   end
 end

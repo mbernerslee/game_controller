@@ -1,1 +1,2 @@
 <h1> Yeay. main page mothertruckkerrr </h1>
+<%= button("Get power status", to: Routes.main_page_path(@conn, :power_status) , method: :post) %>

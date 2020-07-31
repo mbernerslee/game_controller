@@ -19,4 +19,10 @@ defmodule GameControllerWeb.LoginController do
         |> redirect(to: Routes.login_path(conn, :show))
     end
   end
+
+  def delete(conn, _params) do
+    conn
+    |> Auth.clear_session()
+    |> redirect(to: Routes.login_path(conn, :show))
+  end
 end

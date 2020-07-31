@@ -18,6 +18,11 @@ config :game_controller, GameControllerWeb.Endpoint,
   pubsub_server: GameController.PubSub,
   live_view: [signing_salt: "E3JHPazV"]
 
+config :game_controller, :aws,
+  access_key_id: System.get_env("AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY"),
+  default_region: System.get_env("AWS_DEFAULT_REGION")
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

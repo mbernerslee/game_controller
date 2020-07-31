@@ -3,6 +3,7 @@ defmodule GameControllerWeb.LoginControllerTest do
 
   alias GameController.UserBuilder
   alias GameController.TestSetup
+  alias Plug.Conn
 
   describe "show/2" do
     test "renders the login page", %{conn: conn} do
@@ -86,6 +87,27 @@ defmodule GameControllerWeb.LoginControllerTest do
       conn = post(conn, Routes.login_path(conn, :create), bad_params)
 
       assert redirected_to(conn, 302) == Routes.login_path(conn, :show)
+    end
+  end
+
+  describe "delete/2" do
+    test "redirects to login page", %{conn: conn} do
+      conn =
+        conn
+        |> TestSetup.logged_in_user_conn()
+        |> post(Routes.login_path(conn, :delete))
+
+      assert redirected_to(conn, 302) == Routes.login_path(conn, :show)
+    end
+
+    test "clears the session", %{conn: conn} do
+      conn = TestSetup.logged_in_user_conn(conn)
+
+      assert %{"email" => _, "id" => _} = Conn.get_session(conn)
+
+      conn = post(conn, Routes.login_path(conn, :delete))
+
+      assert %{} == Conn.get_session(conn)
     end
   end
 end

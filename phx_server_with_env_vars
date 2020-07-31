@@ -1,0 +1,27 @@
+#!/bin/bash
+
+
+found_profile_name=false
+aws_profile_name="berners_personal"
+while IFS= read -r line; do
+  if [[ $line == "[$aws_profile_name]" ]]; then
+    found_profile_name=true
+  fi
+
+  if [[ $found_profile_name == true ]]; then
+    if [[ $line == "aws_access_key_id = "* ]]; then
+      prefix="aws_access_key_id = "
+      aws_access_key_id=${line#$prefix}
+    elif [[ $line == "aws_secret_access_key = "* ]]; then
+      prefix="aws_secret_access_key = "
+      aws_secret_access_key=${line#$prefix}
+      break;
+    fi
+  fi
+done < ~/.aws/credentials
+
+export AWS_ACCESS_KEY_ID=$aws_access_key_id
+export AWS_SECRET_ACCESS_KEY=$aws_secret_access_key
+export AWS_DEFAULT_REGION=eu-west-2
+
+mix phx.server

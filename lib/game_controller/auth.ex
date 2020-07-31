@@ -13,6 +13,10 @@ defmodule GameController.Auth do
     |> Conn.assign(:user_session, %{id: id, email: email})
   end
 
+  def clear_session(conn) do
+    Conn.clear_session(conn)
+  end
+
   def has_session?(conn) do
     case conn |> Conn.fetch_session() |> Conn.get_session() do
       %{"id" => _, "email" => _} -> true

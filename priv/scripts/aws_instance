@@ -1,0 +1,26 @@
+#!/bin/bash
+
+instance_name="minecraft"
+
+function get_aws_instance_id_from_name {
+  instance_id=`aws ec2 describe-instances --filters "Name=tag:Name,Values=$1" --query "Reservations[*].Instances[*].InstanceId" | grep -oP "\"\K[^\"]+"`
+  echo "$instance_id"
+}
+
+case "$1" in
+        start)
+            aws ec2 start-instances --instance-ids $(get_aws_instance_id_from_name $instance_name) --output json
+            ;;
+        stop)
+            aws ec2 stop-instances --instance-ids $(get_aws_instance_id_from_name $instance_name) --output json
+            ;;
+        get_id)
+            get_aws_instance_id_from_name $instance_name --output json
+            ;;
+        status)
+            aws ec2 describe-instance-status --instance-ids $(get_aws_instance_id_from_name $instance_name) --output json
+            ;;
+        *)
+            echo $"Usage: $0 {start|stop|get_id|status}"
+            exit 1
+esac

@@ -17,6 +17,7 @@
             <%= if logged_in do %>
               <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
                 <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
+                <li><%= link "Logout", to: Routes.login_path(@conn, :delete), method: :post %></li>
               <% end %>
             <% else %>
               <li><%= link "Login", to: Routes.login_path(@conn, :show) %></li>
