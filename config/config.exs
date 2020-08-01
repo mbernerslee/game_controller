@@ -10,6 +10,8 @@ use Mix.Config
 config :game_controller,
   ecto_repos: [GameController.Repo]
 
+config :platform, Platform.Repo, migration_timestamps: [type: :utc_datetime_usec]
+
 # Configures the endpoint
 config :game_controller, GameControllerWeb.Endpoint,
   url: [host: "localhost"],

@@ -16,6 +16,11 @@ config :game_controller, GameControllerWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :platform, GameController.Repo,
+  url: "${DATABASE_URL}",
+  pool_size: 17,
+  ssl: true
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
