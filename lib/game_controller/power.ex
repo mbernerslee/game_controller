@@ -5,12 +5,14 @@ defmodule GameController.Power do
   # TODO add tests, stubb or a mock, UI etc
   # TODO stop hitting the real thing in tests
   def status do
-    "hello"
-    # command_result =
-    #  @aws_instance_script_location
-    #  |> System.cmd(["status"])
-    #  |> elem(0)
-    #  |> Jason.decode()
-    #  |> IO.inspect()
+    if Mix.env() in [:dev, :prod] do
+      @aws_instance_script_location
+      |> System.cmd(["status"])
+      |> elem(0)
+      |> Jason.decode()
+      |> IO.inspect()
+    else
+      "nope"
+    end
   end
 end
