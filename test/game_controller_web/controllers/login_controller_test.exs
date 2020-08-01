@@ -12,7 +12,7 @@ defmodule GameControllerWeb.LoginControllerTest do
              |> html_response(200)
              |> Floki.parse_document!()
              |> Floki.find("h1")
-             |> Enum.member?({"h1", [], ["Login page biiitchhhhhhhh!!"]})
+             |> Enum.member?({"h1", [], ["Login page booooiiiiiiii!!"]})
     end
 
     test "renders only not logged in navbar links", %{conn: conn} do

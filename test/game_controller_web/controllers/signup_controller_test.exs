@@ -10,7 +10,7 @@ defmodule GameControllerWeb.SignupControllerTest do
              |> html_response(200)
              |> Floki.parse_document!()
              |> Floki.find("h1")
-             |> Enum.member?({"h1", [], ["Signup page biiitchhhhhhhh!!"]})
+             |> Enum.member?({"h1", [], ["Signup page Duuuuuuuddeee!!"]})
     end
 
     test "renders the link to signup in the navbar", %{conn: conn} do

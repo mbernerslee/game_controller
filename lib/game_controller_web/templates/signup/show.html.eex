@@ -1,4 +1,4 @@
-<h1>Signup page biiitchhhhhhhh!!</h1>
+<h1>Signup page Duuuuuuuddeee!!</h1>
 
 <%= form_for @changeset, Routes.signup_path(@conn, :create), fn f -> %>
   <%= email_input f, :email, placeholder: "you_jank_email_address@your_jank_domain.asshole", required: true %>
