@@ -10,13 +10,13 @@ use Mix.Config
 # which you should run after static files are built and
 # before starting your production server.
 config :game_controller, GameControllerWeb.Endpoint,
-  url: [host: "example.com", port: 80],
+  url: [host: "35.179.21.114", port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Do not print debug messages in production
 config :logger, level: :info
 
-config :platform, GameController.Repo,
+config :game_controller, GameController.Repo,
   url: "${DATABASE_URL}",
   pool_size: 17,
   ssl: true
