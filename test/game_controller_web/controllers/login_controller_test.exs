@@ -95,7 +95,7 @@ defmodule GameControllerWeb.LoginControllerTest do
       conn =
         conn
         |> TestSetup.logged_in_user_conn()
-        |> post(Routes.login_path(conn, :delete))
+        |> delete(Routes.login_path(conn, :delete))
 
       assert redirected_to(conn, 302) == Routes.login_path(conn, :show)
     end
@@ -105,7 +105,7 @@ defmodule GameControllerWeb.LoginControllerTest do
 
       assert %{"email" => _, "id" => _} = Conn.get_session(conn)
 
-      conn = post(conn, Routes.login_path(conn, :delete))
+      conn = delete(conn, Routes.login_path(conn, :delete))
 
       assert %{} == Conn.get_session(conn)
     end

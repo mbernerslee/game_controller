@@ -4,6 +4,7 @@ defmodule GameController.Application do
   @moduledoc false
 
   use Application
+  alias GameController.RemoteServerStatus
 
   def start(_type, _args) do
     children = [
@@ -14,9 +15,10 @@ defmodule GameController.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: GameController.PubSub},
       # Start the Endpoint (http/https)
-      GameControllerWeb.Endpoint
+      GameControllerWeb.Endpoint,
       # Start a worker by calling: GameController.Worker.start_link(arg)
       # {GameController.Worker, arg}
+      {RemoteServerStatus, RemoteServerStatus.initial_state()}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

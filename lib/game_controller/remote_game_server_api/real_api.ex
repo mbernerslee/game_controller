@@ -4,18 +4,18 @@ defmodule GameController.RemoteGameServerApi.RealApi do
   @aws_instance_script_location Path.join(@priv, "/scripts/aws_instance")
 
   def power_status do
-    @aws_instance_script_location
-    |> System.cmd(["status"])
-    |> elem(0)
-    |> Jason.decode()
-    |> ResponseParser.power_status()
+    run_aws_instance_script("status", &ResponseParser.power_status/1)
   end
 
   def power_on do
+    run_aws_instance_script("start", &ResponseParser.power_on/1)
+  end
+
+  defp run_aws_instance_script(arg, parser) do
     @aws_instance_script_location
-    |> System.cmd(["start"])
+    |> System.cmd([arg])
     |> elem(0)
     |> Jason.decode()
-    |> ResponseParser.power_on()
+    |> parser.()
   end
 end

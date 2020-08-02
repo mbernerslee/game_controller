@@ -10,16 +10,20 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
   end
 
   defp do_power_on(response) do
-    %{
-      "StartingInstances" => [
-        %{
-          "CurrentState" => %{"Name" => current},
-          "PreviousState" => %{"Name" => previous}
-        }
-      ]
-    } = response
+    case response do
+      %{
+        "StartingInstances" => [
+          %{
+            "CurrentState" => %{"Name" => current},
+            "PreviousState" => %{"Name" => previous}
+          }
+        ]
+      } ->
+        do_power_on(current, previous)
 
-    do_power_on(current, previous)
+      _ ->
+        {:ok, :unknown}
+    end
   end
 
   defp do_power_on(current, previous) do
@@ -37,6 +41,9 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
 
       %{"InstanceStatuses" => []} ->
         {:ok, :powered_off}
+
+      _ ->
+        {:ok, :unknown}
     end
   end
 
