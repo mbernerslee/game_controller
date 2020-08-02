@@ -44,7 +44,7 @@ defmodule GameControllerWeb.SignupControllerTest do
           }
         })
 
-      assert redirected_to(conn, 302) == Routes.verify_email_path(conn, :show)
+      assert redirected_to(conn, 302) == Routes.main_page_path(conn, :show)
     end
 
     test "if the email is not allowed in the DB, they're rejected", %{conn: conn} do
