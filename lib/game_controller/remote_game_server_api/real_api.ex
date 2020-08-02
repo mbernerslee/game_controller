@@ -10,4 +10,11 @@ defmodule GameController.RemoteGameServerApi.RealApi do
     |> Jason.decode()
     |> ResponseParser.power_status()
   end
+
+  def power_on do
+    @aws_instance_script_location
+    |> System.cmd(["start"])
+    |> elem(0)
+    |> Jason.decode()
+  end
 end

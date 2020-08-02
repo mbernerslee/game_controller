@@ -15,4 +15,26 @@ defmodule GameControllerWeb.MainPageController do
       raise "Something went seriously wrong. dear god no. Like... I'm seriously you guys"
     end)
   end
+
+  def power_on(conn, _params) do
+    RemoteGameServerApi.power_on()
+    |> Result.and_then(fn power_on ->
+      %{"StartingInstances" =>
+	[
+	  %{"CurrentState" => %{"Name" => current},
+	    "PreviousState" => %{"Name" => previous},
+	   }
+	]
+       } = power_on
+	{power_status, power_on} = 
+	  case {previous, current} do
+	    {_, "running"} -> {:running, :already_on}
+	    {"stopped", "pending"} -> {:starting_up, :starting_up}
+	  end
+      render(conn, "show.html", power_status: power_status, power_on: power_on)
+    end)
+    |> Result.otherwise(fn _ ->
+      raise "Something went seriously wrong. dear god no. Like... I'm seriously you guys"
+    end)
+  end
 end

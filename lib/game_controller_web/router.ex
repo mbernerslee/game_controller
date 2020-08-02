@@ -62,6 +62,7 @@ defmodule GameControllerWeb.Router do
 
         scope "/power" do
           post "/get-status", MainPageController, :power_status
+          post "/on", MainPageController, :power_on
         end
       end
     end
