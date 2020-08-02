@@ -3,6 +3,6 @@
 <%= case @power_status do %>
   <%= :running -> %>
     <h2> It's running </h2>
-  <%= _ -> %>
+  <% _ -> %>
     <h2> It's ... well I'm not sure what it's doing tbh </h2>
 <% end %>
