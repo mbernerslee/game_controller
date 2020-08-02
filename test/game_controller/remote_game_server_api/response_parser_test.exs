@@ -1,7 +1,5 @@
 defmodule GameController.RemoteGameServerApi.ResponseParserTest do
   use ExUnit.Case, async: true
-
-  import ExUnit.CaptureLog
   alias GameController.RemoteGameServerApi.ResponseParser
 
   describe "power_status/1" do
@@ -14,12 +12,10 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert capture_log(fn ->
-               assert ResponseParser.power_status(api_response) == {:ok, :running}
-             end) == ""
+      assert ResponseParser.power_status(api_response) == {:ok, :running}
     end
 
-    test "when two instances are returned its an error" do
+    test "raises if two instances are returned" do
       api_response =
         {:ok,
          %{
@@ -29,22 +25,15 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert capture_log(fn ->
-               assert ResponseParser.power_status(api_response) ==
-                        {:error, :more_than_one_instance}
-             end) =~ "Found more than 1 instance for the key \"InstanceStatuses\""
+      assert_raise MatchError, fn -> ResponseParser.power_status(api_response) end
     end
 
-    test "when its total jank, its an error" do
+    test "raises if given total jank" do
       api_response = {:ok, %{"totalJank" => "balls"}}
-
-      assert capture_log(fn ->
-               assert ResponseParser.power_status(api_response) ==
-                        {:error, :totally_jank_api_response}
-             end) =~ "Could not find the key \"InstanceStatuses\" in the API response"
+      assert_raise MatchError, fn -> ResponseParser.power_status(api_response) end
     end
 
-    test "when its an unrecognised instatance state name, its an error" do
+    test "when its an unrecognised instatance state name, its OK unknown" do
       api_response =
         {:ok,
          %{
@@ -53,11 +42,45 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert capture_log(fn ->
-               assert ResponseParser.power_status(api_response) ==
-                        {:error, :unrecognised_instance_state_name}
-             end) =~
-               "Did not understand value \"wtf is this name?\" in the key \"InstanceState\" \"Name\""
+      assert ResponseParser.power_status(api_response) == {:ok, :unknown}
+    end
+  end
+
+  describe "power_on/1" do
+    test "when its already on" do
+      api_response =
+        {:ok,
+         %{
+           "StartingInstances" => [
+             %{
+               "CurrentState" => %{"Name" => "running"},
+               "PreviousState" => %{"Name" => "running"}
+             }
+           ]
+         }}
+
+      assert ResponseParser.power_on(api_response) == {:ok, :already_on}
+    end
+
+    test "when its starting up" do
+      api_response =
+        {:ok,
+         %{
+           "StartingInstances" => [
+             %{
+               "CurrentState" => %{"Name" => "pending"},
+               "PreviousState" => %{"Name" => "stopped"}
+             }
+           ]
+         }}
+
+      assert ResponseParser.power_on(api_response) == {:ok, :starting_up}
+    end
+
+    test "raises if given unparsable jank" do
+      api_response = {:ok, %{"total_balls" => "jank"}}
+
+      assert_raise MatchError, fn -> ResponseParser.power_on(api_response) end
     end
   end
 end

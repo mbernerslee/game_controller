@@ -57,13 +57,9 @@ defmodule GameControllerWeb.Router do
       import Phoenix.LiveDashboard.Router
       live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry
 
-      scope "/main-page" do
-        get "/", MainPageController, :show
-
-        scope "/power" do
-          post "/get-status", MainPageController, :power_status
-          post "/on", MainPageController, :power_on
-        end
+      scope "/power" do
+        post "/status", MainPageController, :power_status
+        post "/on", MainPageController, :power_on
       end
     end
   end

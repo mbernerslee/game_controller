@@ -16,5 +16,6 @@ defmodule GameController.RemoteGameServerApi.RealApi do
     |> System.cmd(["start"])
     |> elem(0)
     |> Jason.decode()
+    |> ResponseParser.power_on()
   end
 end

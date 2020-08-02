@@ -35,5 +35,34 @@ defmodule GameControllerWeb.MainPageControllerTest do
              |> Floki.text() ==
                " Yeay. main page mothertruckkerrr "
     end
+
+    test "puts the correct assigns", %{conn: conn} do
+      assert %{power_status: :running} =
+               conn
+               |> TestSetup.logged_in_user_conn()
+               |> post(Routes.main_page_path(conn, :power_status))
+               |> Map.fetch!(:assigns)
+    end
+  end
+
+  describe "power_on/2" do
+    test "rerenders the main page", %{conn: conn} do
+      assert conn
+             |> TestSetup.logged_in_user_conn()
+             |> post(Routes.main_page_path(conn, :power_on))
+             |> html_response(200)
+             |> Floki.parse_document!()
+             |> Floki.find("h1")
+             |> Floki.text() ==
+               " Yeay. main page mothertruckkerrr "
+    end
+
+    test "puts the correct assigns", %{conn: conn} do
+      assert %{power_status: :already_on} =
+               conn
+               |> TestSetup.logged_in_user_conn()
+               |> post(Routes.main_page_path(conn, :power_on))
+               |> Map.fetch!(:assigns)
+    end
   end
 end
