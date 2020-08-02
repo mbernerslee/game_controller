@@ -1,5 +1,5 @@
 defmodule GameController.AllowedUserEmailsBuilder do
-  alias GameController.{Auth, Repo, UniqueEmailGenerator}
+  alias GameController.{Repo, UniqueEmailGenerator}
 
   def build do
     default_timestamps(%{email: UniqueEmailGenerator.generate()})

@@ -8,9 +8,9 @@ defmodule GameControllerWeb.SignupController do
 
   def create(conn, %{"user" => %{"email" => email, "password" => password}}) do
     case Users.signup(email, password) do
-      {:ok, _} ->
+      {:ok, %{id: id}} ->
         conn
-        # |> Auth.set_session(id, email)
+        |> Auth.set_session(id, email)
         |> redirect(to: Routes.verify_email_path(conn, :show))
 
       {:error, changeset} ->

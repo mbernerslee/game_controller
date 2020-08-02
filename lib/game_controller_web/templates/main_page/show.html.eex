@@ -1,2 +1,8 @@
 <h1> Yeay. main page mothertruckkerrr </h1>
 <%= button("Get power status", to: Routes.main_page_path(@conn, :power_status) , method: :post) %>
+<%= case @power_status do %>
+  <%= :running -> %>
+    <h2> It's running </h2>
+  <%= _ -> %>
+    <h2> It's ... well I'm not sure what it's doing tbh </h2>
+<% end %>

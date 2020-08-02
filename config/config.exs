@@ -12,6 +12,8 @@ config :game_controller,
 
 config :game_controller, Platform.Repo, migration_timestamps: [type: :utc_datetime_usec]
 
+config :game_controller, :remote_game_server_api, GameController.RemoteGameServerApi.RealApi
+
 # Configures the endpoint
 config :game_controller, GameControllerWeb.Endpoint,
   url: [host: "localhost"],
