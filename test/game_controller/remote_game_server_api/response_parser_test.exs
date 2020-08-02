@@ -15,6 +15,11 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       assert ResponseParser.power_status(api_response) == {:ok, :running}
     end
 
+    test "when it's off" do
+      api_response = {:ok, %{"InstanceStatuses" => []}}
+      assert ResponseParser.power_status(api_response) == {:ok, :powered_off}
+    end
+
     test "raises if two instances are returned" do
       api_response =
         {:ok,
@@ -25,12 +30,12 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert_raise MatchError, fn -> ResponseParser.power_status(api_response) end
+      assert_raise CaseClauseError, fn -> ResponseParser.power_status(api_response) end
     end
 
     test "raises if given total jank" do
       api_response = {:ok, %{"totalJank" => "balls"}}
-      assert_raise MatchError, fn -> ResponseParser.power_status(api_response) end
+      assert_raise CaseClauseError, fn -> ResponseParser.power_status(api_response) end
     end
 
     test "when its an unrecognised instatance state name, its OK unknown" do

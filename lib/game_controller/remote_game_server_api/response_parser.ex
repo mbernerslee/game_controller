@@ -31,8 +31,13 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
   end
 
   defp do_power_status(response) do
-    %{"InstanceStatuses" => [%{"InstanceState" => %{"Name" => instance_state}}]} = response
-    parse_instance_state_name(instance_state)
+    case response do
+      %{"InstanceStatuses" => [%{"InstanceState" => %{"Name" => instance_state}}]} ->
+        parse_instance_state_name(instance_state)
+
+      %{"InstanceStatuses" => []} ->
+        {:ok, :powered_off}
+    end
   end
 
   defp parse_instance_state_name("running"), do: {:ok, :running}
