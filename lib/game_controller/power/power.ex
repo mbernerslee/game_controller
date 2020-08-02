@@ -5,14 +5,16 @@ defmodule GameController.Power do
   # TODO add tests, stubb or a mock, UI etc
   # TODO stop hitting the real thing in tests
   def status do
-    if Mix.env() in [:dev, :prod] do
+    IO.inspect("Power stuatus was called from")
+
+    if Mix.env() in [:prod, :dev] do
       @aws_instance_script_location
       |> System.cmd(["status"])
       |> elem(0)
       |> Jason.decode()
       |> IO.inspect()
     else
-      "nope"
+      {:ok, :powered_off}
     end
   end
 end
