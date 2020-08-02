@@ -1,8 +1,10 @@
 <h1> Yeay. main page mothertruckkerrr </h1>
 <h2>Server power status</h2>
-<%= case @power_status do %>
+<%= case assigns[:power_status] do %>
   <%= :running -> %>
     <div>It's running</div>
+  <%= :powered_off -> %>
+    <div>It's off mate. zzzzzzz</div>
   <% _ -> %>
     <div>I have no idea</div>
 <% end %>

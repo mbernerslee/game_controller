@@ -14,6 +14,9 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
         |> get_in(["InstanceState", "Name"])
         |> parse_instance_state_name(response)
 
+      {:ok, []} ->
+        {:ok, :powered_off}
+
       :error ->
         Logger.error(
           ~s|Could not find the key "InstanceStatuses" in the API response #{inspect(response)}|
@@ -43,13 +46,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
      } in the API response #{inspect(response)}|}
   end
 
-  defp parse_instance_state_name(other, response) do
-    Logger.error(
-      ~s|Did not understand value "#{other}" in the key "InstanceState" "Name" in API response #{
-        inspect(response)
-      }|
-    )
-
-    {:error, :unrecognised_instance_state_name}
+  defp parse_instance_state_name(_, response) do
+    {:ok, :unknown}
   end
 end

@@ -30,6 +30,7 @@ defmodule GameControllerWeb.MainPageController do
 	  case {previous, current} do
 	    {_, "running"} -> {:running, :already_on}
 	    {"stopped", "pending"} -> {:starting_up, :starting_up}
+	    _ -> {:unknown, :unknown}
 	  end
       render(conn, "show.html", power_status: power_status, power_on: power_on)
     end)
