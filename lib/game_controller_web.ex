@@ -23,6 +23,7 @@ defmodule GameControllerWeb do
 
       import Plug.Conn
       import GameControllerWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias GameControllerWeb.Router.Helpers, as: Routes
     end
   end
@@ -35,6 +36,7 @@ defmodule GameControllerWeb do
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
+      import Phoenix.LiveView.Helpers
 
       # Include shared imports and aliases for views
       unquote(view_helpers())
@@ -47,6 +49,7 @@ defmodule GameControllerWeb do
 
       import Plug.Conn
       import Phoenix.Controller
+      import Phoenix.LiveView.Router
     end
   end
 

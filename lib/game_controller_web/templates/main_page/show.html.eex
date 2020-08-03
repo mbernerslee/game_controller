@@ -3,7 +3,7 @@
 <%= case assigns[:power_status] do %>
   <%= :running -> %>
     <div>It's running</div>
-  <%= :powered_off -> %>
+  <% :powered_off -> %>
     <div>It's off mate. zzzzzzz</div>
   <% _ -> %>
     <div>I have no idea</div>
