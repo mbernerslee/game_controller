@@ -1,10 +1,12 @@
 defmodule GameControllerWeb.Router do
   use GameControllerWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
+    plug :put_root_layout, {GameControllerWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -50,16 +52,11 @@ defmodule GameControllerWeb.Router do
     scope "/" do
       pipe_through :logged_in
 
-      get "/", MainPageController, :show
+      live "/", ServerStatusLive, :show
       delete "/", LoginController, :delete
 
       import Phoenix.LiveDashboard.Router
       live_dashboard "/dashboard", metrics: GameControllerWeb.Telemetry
-
-      scope "/power" do
-        post "/status", MainPageController, :power_status
-        post "/on", MainPageController, :power_on
-      end
     end
   end
 end

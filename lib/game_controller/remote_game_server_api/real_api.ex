@@ -11,6 +11,10 @@ defmodule GameController.RemoteGameServerApi.RealApi do
     run_aws_instance_script("start", &ResponseParser.power_on/1)
   end
 
+  def power_off do
+    run_aws_instance_script("stop", &ResponseParser.power_off/1)
+  end
+
   defp run_aws_instance_script(arg, parser) do
     @aws_instance_script_location
     |> System.cmd([arg])

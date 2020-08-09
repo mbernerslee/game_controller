@@ -11,7 +11,7 @@ defmodule GameControllerWeb.SignupController do
       {:ok, %{id: id}} ->
         conn
         |> Auth.set_session(id, email)
-        |> redirect(to: Routes.main_page_path(conn, :show))
+        |> redirect(to: Routes.server_status_path(conn, :show))
 
       {:error, changeset} ->
         render(conn, "show.html", changeset: changeset)

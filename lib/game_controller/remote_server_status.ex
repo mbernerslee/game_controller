@@ -1,12 +1,15 @@
 defmodule GameController.RemoteServerStatus do
   use GenServer
 
+  alias Phoenix.PubSub
   alias GameController.RemoteGameServerApi
 
-  @keys [:power]
   @name :remote_server_status
+  def genserver_name, do: @name
 
-  # TODO rename to remote server state?
+  def name, do: "remote_server_status"
+
+  # TODO rename to server status?
   # TODO add tests ffs!
   # TODO don't hit real api in dev and instead just update this genserver state?
   # TODO add a last_updated for the power, so that you can display it on the frontend
@@ -24,12 +27,20 @@ defmodule GameController.RemoteServerStatus do
     end
   end
 
-  def update(key, value) do
-    GenServer.cast(@name, {:update, key, value})
+  def power_status do
+    GenServer.call(@name, :get_power_status)
   end
 
-  def get(key) do
-    GenServer.call(@name, {:get, key})
+  def power_on do
+    GenServer.call(@name, :power_on)
+  end
+
+  def power_off do
+    GenServer.call(@name, :power_off)
+  end
+
+  def refresh_power_status do
+    GenServer.call(@name, :refresh_power_status)
   end
 
   @impl true
@@ -38,16 +49,28 @@ defmodule GameController.RemoteServerStatus do
   end
 
   @impl true
-  def handle_call({:get, key}, _from, server_status) do
-    {:reply, server_status[key], server_status}
+  def handle_call(:get_power_status, _from, server_status) do
+    {:reply, server_status.power, server_status}
   end
 
-  @impl true
-  def handle_cast({:update, key, value}, server_status) when key in @keys do
-    {:noreply, Map.update!(server_status, key, fn _ -> value end)}
+  def handle_call(:power_on, _from, server_status) do
+    server_status = update_power_status(&RemoteGameServerApi.power_on/0, server_status)
+    {:reply, server_status.power, server_status}
   end
 
-  def handle_cast({:update, _key, _value}, server_status) do
-    {:noreply, server_status}
+  def handle_call(:power_off, _from, server_status) do
+    server_status = update_power_status(&RemoteGameServerApi.power_off/0, server_status)
+    {:reply, server_status.power, server_status}
+  end
+
+  def handle_call(:refresh_power_status, _from, server_status) do
+    server_status = update_power_status(&RemoteGameServerApi.power_status/0, server_status)
+    {:reply, server_status.power, server_status}
+  end
+
+  defp update_power_status(new_power_status_fun, server_status) do
+    {:ok, new_power_status} = new_power_status_fun.()
+    PubSub.broadcast(GameController.PubSub, name(), {:power, new_power_status})
+    Map.update!(server_status, :power, fn _ -> new_power_status end)
   end
 end

@@ -67,7 +67,7 @@ defmodule GameControllerWeb.LoginControllerTest do
       conn =
         post(conn, Routes.login_path(conn, :create), %{"email" => email, "password" => "password"})
 
-      assert redirected_to(conn, 302) == Routes.main_page_path(conn, :show)
+      assert redirected_to(conn, 302) == Routes.server_status_path(conn, :show)
     end
 
     test "on successful add the user session to the assigns", %{conn: conn} do
