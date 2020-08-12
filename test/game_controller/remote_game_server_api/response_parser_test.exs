@@ -88,4 +88,36 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       assert ResponseParser.power_on(api_response) == {:ok, :unknown}
     end
   end
+
+  describe "power_off/0" do
+    test "when its already off" do
+      response =
+        {:ok,
+         %{
+           "StoppingInstances" => [
+             %{
+               "CurrentState" => %{"Name" => "stopped"},
+               "PreviousState" => %{"Name" => "stopped"}
+             }
+           ]
+         }}
+
+      assert ResponseParser.power_off(response) == {:ok, :already_stopped}
+    end
+
+    test "when its stopping now" do
+      response =
+        {:ok,
+         %{
+           "StoppingInstances" => [
+             %{
+               "CurrentState" => %{"Name" => "stopped"},
+               "PreviousState" => %{"Name" => "running"}
+             }
+           ]
+         }}
+
+      assert ResponseParser.power_off(response) == {:ok, :powering_down}
+    end
+  end
 end

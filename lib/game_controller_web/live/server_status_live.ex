@@ -2,7 +2,7 @@ defmodule GameControllerWeb.ServerStatusLive do
   use Phoenix.LiveView
   use Phoenix.HTML
   alias Phoenix.PubSub
-  alias GameController.{RemoteServerStatus, RemoteGameServerApi}
+  alias GameController.RemoteServerStatus
 
   def mount(_params, _session, socket) do
     PubSub.subscribe(GameController.PubSub, RemoteServerStatus.name())

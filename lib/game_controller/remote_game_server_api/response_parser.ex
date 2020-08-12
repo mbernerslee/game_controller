@@ -11,17 +11,29 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
 
   # TODO add tests for this
   def power_off(api_response) do
-    {:ok,
-     %{
-       "StoppingInstances" => [
-         %{
-           "CurrentState" => %{"Name" => "stopping"},
-           "PreviousState" => %{"Name" => "running"}
-         }
-       ]
-     }} = api_response
+    Result.and_then(api_response, &do_power_off/1)
+  end
 
-    {:ok, :powering_down}
+  defp do_power_off(response) do
+    %{
+      "StoppingInstances" => [
+        %{
+          "CurrentState" => %{"Name" => current},
+          "PreviousState" => %{"Name" => previous}
+        }
+      ]
+    } = response
+
+    case {previous, current} do
+      {"stopped", "stopped"} ->
+        {:ok, :already_stopped}
+
+      {"running", "stopped"} ->
+        {:ok, :powering_down}
+
+      _ ->
+        {:ok, :unknown}
+    end
   end
 
   defp do_power_on(response) do

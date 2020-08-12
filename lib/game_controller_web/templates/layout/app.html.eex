@@ -9,27 +9,6 @@
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-    <header>
-      <section class="container">
-        <nav role="navigation">
-          <ul>
-            <% logged_in = Auth.has_session?(@conn) %>
-            <%= if logged_in do %>
-              <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-                <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
-                <li><%= link "Logout", to: Routes.login_path(@conn, :delete), method: :delete %></li>
-              <% end %>
-            <% else %>
-              <li><%= link "Login", to: Routes.login_path(@conn, :show) %></li>
-              <li><%= link "Signup", to: Routes.signup_path(@conn, :show) %></li>
-            <% end %>
-            <%= if Mix.env() in [:dev, :test] do %>
-              <li><%= link "Test logins", to: Routes.test_logins_path(@conn, :show) %></li>
-            <% end %>
-          </ul>
-        </nav>
-      </section>
-    </header>
     <main role="main" class="container">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>

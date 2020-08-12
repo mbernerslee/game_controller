@@ -55,6 +55,8 @@ defmodule GameController.RemoteServerStatus do
 
   def handle_call(:power_on, _from, server_status) do
     server_status = update_power_status(&RemoteGameServerApi.power_on/0, server_status)
+    IO.inspect("About to start check_until_powered_on")
+    check_until_powered_on()
     {:reply, server_status.power, server_status}
   end
 
@@ -68,8 +70,31 @@ defmodule GameController.RemoteServerStatus do
     {:reply, server_status.power, server_status}
   end
 
+  @impl true
+  def handle_cast(:check_until_powered_on, server_status) do
+    case RemoteGameServerApi.power_status() do
+      {:ok, :running} ->
+        IO.inspect("Checking if its powered on - its running")
+        server_status = update_power_status(fn -> {:ok, :running} end, server_status)
+        {:noreply, server_status}
+
+      _ ->
+        IO.inspect("Checking if its powered on - its not")
+        check_until_powered_on()
+        {:noreply, server_status}
+    end
+  end
+
+  defp check_until_powered_on do
+    spawn_link(fn ->
+      Process.sleep(2_000)
+      GenServer.cast(@name, :check_until_powered_on)
+    end)
+  end
+
   defp update_power_status(new_power_status_fun, server_status) do
     {:ok, new_power_status} = new_power_status_fun.()
+
     PubSub.broadcast(GameController.PubSub, name(), {:power, new_power_status})
     Map.update!(server_status, :power, fn _ -> new_power_status end)
   end

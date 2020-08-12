@@ -29,3 +29,16 @@
 .alert:empty {
   display: none;
 }
+
+.power-status {
+  display: flex;
+  flex-direction: horizontal;
+  height: 75px;
+  div {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  img {
+    width: 75px;
+  }
+}
