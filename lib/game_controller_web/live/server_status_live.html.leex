@@ -6,6 +6,12 @@
       <div>He's running</div>
     <% :powered_off -> %>
       <div>He's off zzzzzzz</div>
+    <% :fetching_power_status -> %>
+      <div>Fetching power status...</div>
+      <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
+    <% :powering_down -> %>
+      <div>Powering him down...</div>
+      <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
     <% :already_stopped -> %>
       <div>He's already dead. stop killing him</div>
     <% :already_on -> %>
@@ -21,8 +27,8 @@
 </div>
 
 
-<%= unless @power == :starting_up do %>
-  <div><button phx-click="get_power_status">Get power status</button></div>
+<%= unless @power in [:starting_up, :fetching_power_status, :powering_down] do %>
+  <div><button phx-click="refetch_power_status">Check power status again now</button></div>
 <% end %>
 
 <% #TODO remove the "already-blah" statuses, and add a throbber for when we're waiting for the script to run instead, to indicate that a refresh is happening %>

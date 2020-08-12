@@ -9,8 +9,8 @@ defmodule GameControllerWeb.ServerStatusLive do
     {:ok, assign(socket, :power, RemoteServerStatus.power_status())}
   end
 
-  def handle_event("get_power_status", _, socket) do
-    {:noreply, assign(socket, :power, RemoteServerStatus.refresh_power_status())}
+  def handle_event("refetch_power_status", _, socket) do
+    {:noreply, assign(socket, :power, RemoteServerStatus.refetch_power_status())}
   end
 
   def handle_event("power_on", _, socket) do

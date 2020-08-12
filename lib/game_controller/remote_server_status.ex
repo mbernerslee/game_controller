@@ -39,8 +39,8 @@ defmodule GameController.RemoteServerStatus do
     GenServer.call(@name, :power_off)
   end
 
-  def refresh_power_status do
-    GenServer.call(@name, :refresh_power_status)
+  def refetch_power_status do
+    GenServer.call(@name, :refetch_power_status)
   end
 
   @impl true
@@ -54,35 +54,83 @@ defmodule GameController.RemoteServerStatus do
   end
 
   def handle_call(:power_on, _from, server_status) do
-    server_status = update_power_status(&RemoteGameServerApi.power_on/0, server_status)
-    IO.inspect("About to start check_until_powered_on")
+    do_power_on()
     check_until_powered_on()
+    server_status = update_power_status(fn -> {:ok, :starting_up} end, server_status)
     {:reply, server_status.power, server_status}
   end
 
   def handle_call(:power_off, _from, server_status) do
-    server_status = update_power_status(&RemoteGameServerApi.power_off/0, server_status)
+    do_power_off()
+    check_until_powered_down()
+    server_status = update_power_status(fn -> {:ok, :powering_down} end, server_status)
     {:reply, server_status.power, server_status}
   end
 
-  def handle_call(:refresh_power_status, _from, server_status) do
-    server_status = update_power_status(&RemoteGameServerApi.power_status/0, server_status)
-    {:reply, server_status.power, server_status}
+  def handle_call(:refetch_power_status, _from, server_status) do
+    fetch_power_status()
+    server_status = update_power_status(fn -> {:ok, :fetching_power_status} end, server_status)
+    {:reply, :fetching_power_status, server_status}
   end
 
   @impl true
   def handle_cast(:check_until_powered_on, server_status) do
     case RemoteGameServerApi.power_status() do
       {:ok, :running} ->
-        IO.inspect("Checking if its powered on - its running")
         server_status = update_power_status(fn -> {:ok, :running} end, server_status)
         {:noreply, server_status}
 
       _ ->
-        IO.inspect("Checking if its powered on - its not")
         check_until_powered_on()
         {:noreply, server_status}
     end
+  end
+
+  def handle_cast(:check_until_powered_down, server_status) do
+    case RemoteGameServerApi.power_status() do
+      {:ok, :powered_off} ->
+        server_status = update_power_status(fn -> {:ok, :powered_off} end, server_status)
+        {:noreply, server_status}
+
+      _ ->
+        check_until_powered_down()
+        {:noreply, server_status}
+    end
+  end
+
+  def handle_cast({:fetched_power_status, power_status}, server_status) do
+    server_status = update_power_status(fn -> {:ok, power_status} end, server_status)
+    {:noreply, server_status}
+  end
+
+  defp fetch_power_status do
+    spawn_link(fn ->
+      power_status =
+        case RemoteGameServerApi.power_status() do
+          {:ok, power_status} ->
+            power_status
+
+          _ ->
+            :unknown
+        end
+
+      GenServer.cast(@name, {:fetched_power_status, power_status})
+    end)
+  end
+
+  defp do_power_on do
+    spawn_link(fn -> RemoteGameServerApi.power_on() end)
+  end
+
+  defp do_power_off do
+    spawn_link(fn -> RemoteGameServerApi.power_off() end)
+  end
+
+  defp check_until_powered_down do
+    spawn_link(fn ->
+      Process.sleep(2_000)
+      GenServer.cast(@name, :check_until_powered_down)
+    end)
   end
 
   defp check_until_powered_on do
