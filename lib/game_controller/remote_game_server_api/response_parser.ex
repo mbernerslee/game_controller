@@ -3,23 +3,25 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
   require Logger
 
   def power_status(api_response) do
-    parse_action(api_response, &do_power_status/1)
+    parse_action(api_response, &do_power_status/1, __ENV__.function)
   end
 
   def power_on(api_response) do
-    parse_action(api_response, &do_power_on/1)
+    parse_action(api_response, &do_power_on/1, __ENV__.function)
   end
 
   def power_off(api_response) do
-    parse_action(api_response, &do_power_off/1)
+    parse_action(api_response, &do_power_off/1, __ENV__.function)
   end
 
-  defp parse_action(api_response, parser_fun) do
+  defp parse_action(api_response, parser_fun, {function, _}) do
     api_response
     |> Result.and_then(parser_fun)
     |> Result.otherwise(fn error ->
       Logger.error(
-        "Failed to parse AWS API response to power on request. Got response: #{inspect(error)}"
+        "Failed to parse AWS API response to #{inspect(function)} request. Got response: #{
+          inspect(error)
+        }"
       )
 
       :unknown
@@ -47,6 +49,9 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
     case {previous, current} do
       {"stopped", "stopped"} ->
         :already_stopped
+
+      {"running", "stopping"} ->
+        :powering_down
 
       {"running", "stopped"} ->
         :powering_down

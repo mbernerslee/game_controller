@@ -9,7 +9,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
         {:ok,
          %{
            "InstanceStatuses" => [
-             %{"InstanceState" => %{"Code" => 16, "Name" => "running"}}
+             %{"InstanceState" => %{"Name" => "running"}}
            ]
          }}
 
@@ -24,8 +24,8 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
     test "unknown if two instances are returned" do
       response = %{
         "InstanceStatuses" => [
-          %{"InstanceState" => %{"Code" => 16, "Name" => "running"}},
-          %{"InstanceState" => %{"Code" => 16, "Name" => "running"}}
+          %{"InstanceState" => %{"Name" => "running"}},
+          %{"InstanceState" => %{"Name" => "running"}}
         ]
       }
 
@@ -34,7 +34,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       logging =
         capture_log(fn -> assert ResponseParser.power_status(api_response) == :unknown end)
 
-      assert logging =~ "Failed to parse AWS API response to power on request."
+      assert logging =~ "Failed to parse AWS API response to :power_status request."
       assert logging =~ "Got response: #{inspect(response)}"
     end
 
@@ -44,7 +44,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       logging =
         capture_log(fn -> assert ResponseParser.power_status(api_response) == :unknown end)
 
-      assert logging =~ "Failed to parse AWS API response to power on request."
+      assert logging =~ "Failed to parse AWS API response to :power_status request."
       assert logging =~ "Got response: #{inspect(%{"totalJank" => "balls"})}"
     end
 
@@ -60,7 +60,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       logging =
         capture_log(fn -> assert ResponseParser.power_status(api_response) == :unknown end)
 
-      assert logging =~ "Failed to parse AWS API response to power on request."
+      assert logging =~ "Failed to parse AWS API response to :power_status request."
       assert logging =~ "Got response: #{inspect(response)}"
     end
 
@@ -72,7 +72,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       logging =
         capture_log(fn -> assert ResponseParser.power_status(api_response) == :unknown end)
 
-      assert logging =~ "Failed to parse AWS API response to power on request."
+      assert logging =~ "Failed to parse AWS API response to :power_status request."
       assert logging =~ "Got response: #{inspect(response)}"
     end
   end
@@ -114,7 +114,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
 
       logging = capture_log(fn -> assert ResponseParser.power_on(api_response) == :unknown end)
 
-      assert logging =~ "Failed to parse AWS API response to power on request."
+      assert logging =~ "Failed to parse AWS API response to :power_on request."
       assert logging =~ "Got response: #{inspect(response)}"
     end
   end
@@ -150,13 +150,28 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
       assert ResponseParser.power_off(response) == :powering_down
     end
 
+    test "when it retruns that its powering down" do
+      response =
+        {:ok,
+         %{
+           "StoppingInstances" => [
+             %{
+               "CurrentState" => %{"Name" => "stopping"},
+               "PreviousState" => %{"Name" => "running"}
+             }
+           ]
+         }}
+
+      assert ResponseParser.power_off(response) == :powering_down
+    end
+
     test "when given total jank" do
       response = %{"total_balls" => "jank"}
       api_response = {:ok, response}
 
       logging = capture_log(fn -> assert ResponseParser.power_off(api_response) == :unknown end)
 
-      assert logging =~ "Failed to parse AWS API response to power on request."
+      assert logging =~ "Failed to parse AWS API response to :power_off request."
       assert logging =~ "Got response: #{inspect(response)}"
     end
   end
