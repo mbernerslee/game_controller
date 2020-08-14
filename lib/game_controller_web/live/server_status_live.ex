@@ -5,7 +5,7 @@ defmodule GameControllerWeb.ServerStatusLive do
   alias GameController.RemoteServerStatus
 
   def mount(_params, _session, socket) do
-    PubSub.subscribe(GameController.PubSub, RemoteServerStatus.name())
+    PubSub.subscribe(GameController.PubSub, RemoteServerStatus.pub_sub_name())
     {:ok, assign(socket, :power, RemoteServerStatus.power_status())}
   end
 

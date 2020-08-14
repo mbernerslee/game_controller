@@ -3,6 +3,8 @@ defmodule GameController.RemoteGameServerApi.RealApi do
   @priv :code.priv_dir(:game_controller)
   @aws_instance_script_location Path.join(@priv, "/scripts/aws_instance")
 
+  # TODO check the interface to just return the new status instead of the tuple
+  # TODO log if any errors and return unknown?
   def power_status do
     run_aws_instance_script("status", &ResponseParser.power_status/1)
   end
