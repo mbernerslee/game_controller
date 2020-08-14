@@ -12,7 +12,9 @@ config :game_controller, GameController.Repo,
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
-config :game_controller, :remote_game_server_api, GameController.RemoteGameServerApi.InMemory
+config :game_controller,
+       :remote_game_server_api,
+       GameController.RemoteGameServerApi.InMemoryPoweredOn
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

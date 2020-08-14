@@ -1,37 +1,58 @@
 defmodule GameController.RemoteGameServerApi.ResponseParser do
   alias GameController.Result
+  require Logger
 
   def power_status(api_response) do
-    Result.and_then(api_response, &do_power_status/1)
+    parse_action(api_response, &do_power_status/1)
   end
 
   def power_on(api_response) do
-    Result.and_then(api_response, &do_power_on/1)
+    parse_action(api_response, &do_power_on/1)
   end
 
   def power_off(api_response) do
-    Result.and_then(api_response, &do_power_off/1)
+    parse_action(api_response, &do_power_off/1)
+  end
+
+  defp parse_action(api_response, parser_fun) do
+    api_response
+    |> Result.and_then(parser_fun)
+    |> Result.otherwise(fn error ->
+      Logger.error(
+        "Failed to parse AWS API response to power on request. Got response: #{inspect(error)}"
+      )
+
+      :unknown
+    end)
   end
 
   defp do_power_off(response) do
-    %{
-      "StoppingInstances" => [
-        %{
-          "CurrentState" => %{"Name" => current},
-          "PreviousState" => %{"Name" => previous}
-        }
-      ]
-    } = response
-
-    case {previous, current} do
-      {"stopped", "stopped"} ->
-        {:ok, :already_stopped}
-
-      {"running", "stopped"} ->
-        {:ok, :powering_down}
+    case response do
+      %{
+        "StoppingInstances" => [
+          %{
+            "CurrentState" => %{"Name" => current},
+            "PreviousState" => %{"Name" => previous}
+          }
+        ]
+      } ->
+        parse_power_off_instance_state(previous, current, response)
 
       _ ->
-        {:ok, :unknown}
+        {:error, response}
+    end
+  end
+
+  defp parse_power_off_instance_state(previous, current, response) do
+    case {previous, current} do
+      {"stopped", "stopped"} ->
+        :already_stopped
+
+      {"running", "stopped"} ->
+        :powering_down
+
+      _ ->
+        {:error, response}
     end
   end
 
@@ -45,34 +66,34 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
           }
         ]
       } ->
-        do_power_on(current, previous)
+        do_power_on(current, previous, response)
 
       _ ->
-        {:ok, :unknown}
+        {:error, response}
     end
   end
 
-  defp do_power_on(current, previous) do
+  defp do_power_on(current, previous, response) do
     case {current, previous} do
-      {_, "running"} -> {:ok, :running}
-      {"pending", "stopped"} -> {:ok, :starting_up}
-      _ -> {:ok, :unknown}
+      {_, "running"} -> :running
+      {"pending", "stopped"} -> :starting_up
+      _ -> {:error, response}
     end
   end
 
   defp do_power_status(response) do
     case response do
       %{"InstanceStatuses" => [%{"InstanceState" => %{"Name" => instance_state}}]} ->
-        parse_instance_state_name(instance_state)
+        parse_instance_state_name(instance_state, response)
 
       %{"InstanceStatuses" => []} ->
-        {:ok, :powered_off}
+        :powered_off
 
       _ ->
-        {:ok, :unknown}
+        {:error, response}
     end
   end
 
-  defp parse_instance_state_name("running"), do: {:ok, :running}
-  defp parse_instance_state_name(_), do: {:ok, :unknown}
+  defp parse_instance_state_name("running", _), do: :running
+  defp parse_instance_state_name(_, response), do: {:error, response}
 end
