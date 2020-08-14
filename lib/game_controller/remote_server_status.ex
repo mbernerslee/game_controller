@@ -1,5 +1,6 @@
 defmodule GameController.RemoteServerStatus do
   use GenServer
+  require Logger
 
   alias Phoenix.PubSub
   alias GameController.RemoteGameServerApi
@@ -48,6 +49,7 @@ defmodule GameController.RemoteServerStatus do
 
   @impl true
   def handle_call(:get_power_status, _from, server_status) do
+    debug_log(server_status, "returning in memory power status")
     {:reply, server_status.power, server_status}
   end
 
@@ -55,6 +57,7 @@ defmodule GameController.RemoteServerStatus do
     spawn_link(fn -> RemoteGameServerApi.power_on() end)
     check_until_powered_on()
     server_status = broadcast_and_update_power_status(:starting_up, server_status)
+    debug_log(server_status)
     {:reply, server_status.power, server_status}
   end
 
@@ -62,6 +65,7 @@ defmodule GameController.RemoteServerStatus do
     spawn_link(fn -> RemoteGameServerApi.power_off() end)
     check_until_powered_down()
     server_status = broadcast_and_update_power_status(:powering_down, server_status)
+    debug_log(server_status)
     {:reply, server_status.power, server_status}
   end
 
@@ -80,7 +84,16 @@ defmodule GameController.RemoteServerStatus do
     end)
 
     server_status = broadcast_and_update_power_status(:fetching_power_status, server_status)
+    debug_log(server_status)
     {:reply, server_status.power, server_status}
+  end
+
+  defp debug_log(%{power: power_status}) do
+    Logger.debug("#{__MODULE__} - '#{power_status}'")
+  end
+
+  defp debug_log(%{power: power_status}, msg) do
+    Logger.debug("#{__MODULE__} - '#{power_status}' - #{msg}")
   end
 
   defp check_until_powered_down do
@@ -106,9 +119,12 @@ defmodule GameController.RemoteServerStatus do
   def handle_cast(:check_until_powered_on, server_status) do
     case RemoteGameServerApi.power_status() do
       {:ok, :running} ->
-        {:noreply, broadcast_and_update_power_status(:running, server_status)}
+        server_status = broadcast_and_update_power_status(:running, server_status)
+        debug_log(server_status, "checking until powered on finished")
+        {:noreply, server_status}
 
       _ ->
+        debug_log(server_status, "still checking until powered on...")
         check_until_powered_on()
         {:noreply, server_status}
     end
@@ -117,15 +133,20 @@ defmodule GameController.RemoteServerStatus do
   def handle_cast(:check_until_powered_down, server_status) do
     case RemoteGameServerApi.power_status() do
       {:ok, :powered_off} ->
-        {:noreply, broadcast_and_update_power_status(:powered_off, server_status)}
+        server_status = broadcast_and_update_power_status(:powered_off, server_status)
+        debug_log(server_status, "checking until powered down finished")
+        {:noreply, server_status}
 
       _ ->
+        debug_log(server_status, "still checking until powered down...")
         check_until_powered_down()
         {:noreply, server_status}
     end
   end
 
   def handle_cast({:fetched_power_status, power_status}, server_status) do
-    {:noreply, broadcast_and_update_power_status(power_status, server_status)}
+    server_status = broadcast_and_update_power_status(power_status, server_status)
+    debug_log(server_status, "fetched power status")
+    {:noreply, server_status}
   end
 end
