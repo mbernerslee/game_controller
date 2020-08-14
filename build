@@ -13,9 +13,15 @@ find_todos() {
 . ./scripts/beautifier
 
 # putting in some fake env vars so that the prod config can be loaded
-export DATABASE_URL=postgres://fake@domain.com/totally_fake
-export SECRET_KEY_BASE=aTotalSecret
-export LIVE_VIEW_SIGNING_SALT=fakeliveViewSigningSalt
+if [ "$DATABASE_URL" == "" ]; then
+  export DATABASE_URL=postgres://fake@domain.com/totally_fake
+fi
+if [ "$SECRET_KEY_BASE" == "" ]; then
+  export SECRET_KEY_BASE=aTotalSecret
+fi
+if [ "$LIVE_VIEW_SIGNING_SALT" == "" ]; then
+  export LIVE_VIEW_SIGNING_SALT=fakeliveViewSigningSalt
+fi
 
 #run_action "find_todos"
 run_action "mix deps.get"
@@ -24,4 +30,4 @@ run_action "yarn --cwd assets deploy"
 run_action "mix loadconfig config/prod.exs"
 run_action "mix format --check-formatted"
 run_action "MIX_ENV=test mix compile --warnings-as-errors --force"
-run_action "mix test"
+run_action "mix test --include slow_tests"

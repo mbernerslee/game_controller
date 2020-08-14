@@ -10,6 +10,8 @@ defmodule GameController.RemoteServerStatusTest do
     InMemoryPoweringDown
   }
 
+  @moduletag :slow_tests
+
   setup do
     on_exit(fn ->
       Application.put_env(:game_controller, :remote_game_server_api, InMemoryPoweredOn)
