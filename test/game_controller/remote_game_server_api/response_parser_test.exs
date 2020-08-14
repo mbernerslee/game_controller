@@ -64,7 +64,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert ResponseParser.power_on(api_response) == {:ok, :already_on}
+      assert ResponseParser.power_on(api_response) == {:ok, :running}
     end
 
     test "when its starting up" do

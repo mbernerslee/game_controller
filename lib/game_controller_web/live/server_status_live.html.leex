@@ -4,6 +4,9 @@
   <%= case @power do %>
     <%= :running -> %>
       <div>He's running</div>
+    <% :starting_up -> %>
+      <div>He's starting up...</div>
+      <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
     <% :powered_off -> %>
       <div>He's off zzzzzzz</div>
     <% :fetching_power_status -> %>
@@ -14,13 +17,6 @@
       <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
     <% :already_stopped -> %>
       <div>He's already dead. stop killing him</div>
-    <% :already_on -> %>
-      <div>He's already on dumbass</div>
-    <% :starting_up -> %>
-      <div>He's starting up...</div>
-      <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
-    <% :powering_down -> %>
-      <div>He's shutting down...zzzzz</div>
     <% _ -> %>
       <div>I have no idea what he's up to</div>
   <% end %>
@@ -32,10 +28,8 @@
 <% end %>
 
 <% #TODO remove the "already-blah" statuses, and add a throbber for when we're waiting for the script to run instead, to indicate that a refresh is happening %>
-<% #TODO add the throbber for powering down too %>
-<% #TODO add the throbber for .. everything %>
 <% #TODO stop getting the power status on page load %>
-<%= if @power in [:running, :already_on, :unknown] do %>
+<%= if @power in [:running, :unknown] do %>
   <div><button phx-click="power_off">Power him off (zzzzzz)</button></div>
 <% end %>
 <%= if @power in [:already_stopped, :powered_off, :unknown] do %>

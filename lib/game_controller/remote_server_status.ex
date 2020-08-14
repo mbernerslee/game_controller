@@ -9,9 +9,7 @@ defmodule GameController.RemoteServerStatus do
 
   def name, do: "remote_server_status"
 
-  # TODO rename to server status?
   # TODO add tests ffs!
-  # TODO don't hit real api in dev and instead just update this genserver state?
   # TODO add a last_updated for the power, so that you can display it on the frontend
   def start_link(default) when is_map(default) do
     GenServer.start_link(__MODULE__, default, name: @name)

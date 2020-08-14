@@ -9,7 +9,6 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
     Result.and_then(api_response, &do_power_on/1)
   end
 
-  # TODO add tests for this
   def power_off(api_response) do
     Result.and_then(api_response, &do_power_off/1)
   end
@@ -55,7 +54,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
 
   defp do_power_on(current, previous) do
     case {current, previous} do
-      {_, "running"} -> {:ok, :already_on}
+      {_, "running"} -> {:ok, :running}
       {"pending", "stopped"} -> {:ok, :starting_up}
       _ -> {:ok, :unknown}
     end
