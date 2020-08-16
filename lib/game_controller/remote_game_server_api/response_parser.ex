@@ -48,7 +48,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
   defp parse_power_off_instance_state(previous, current, response) do
     case {previous, current} do
       {"stopped", "stopped"} ->
-        :already_stopped
+        :powered_off
 
       {"running", "stopping"} ->
         :powering_down

@@ -6,7 +6,6 @@ defmodule GameControllerWeb.Plugs.LoggedIn do
     opts
   end
 
-  # TODO add verified email boolean to users table which is also a login blocker if false
   def call(conn, _opts \\ []) do
     if Auth.has_session?(conn) do
       conn

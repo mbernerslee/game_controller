@@ -28,6 +28,7 @@ defmodule GameController.RemoteServerStatusTest do
       assert RemoteServerStatus.refetch_power_status(pid) == :fetching_power_status
       assert_receive {:trace, ^pid, :receive, {_, _, :refetch_power_status}}
       assert_receive {:trace, ^pid, :receive, {_, {:fetched_power_status, :running}}}
+      refute_receive {:trace, ^pid, :receive, _}
     end
 
     test "when it's off" do
@@ -38,6 +39,7 @@ defmodule GameController.RemoteServerStatusTest do
       assert RemoteServerStatus.refetch_power_status(pid) == :fetching_power_status
       assert_receive {:trace, ^pid, :receive, {_, _, :refetch_power_status}}
       assert_receive {:trace, ^pid, :receive, {_, {:fetched_power_status, :powered_off}}}
+      refute_receive {:trace, ^pid, :receive, _}
     end
 
     test "when it's starting_up" do
@@ -103,6 +105,7 @@ defmodule GameController.RemoteServerStatusTest do
       :erlang.trace(pid, true, [:receive])
       assert RemoteServerStatus.power_off(pid) == :powering_down
       assert_receive {:trace, ^pid, :receive, {_, _, :power_off}}
+      refute_receive {:trace, ^pid, :receive, _}
     end
 
     test "when already off" do

@@ -11,8 +11,6 @@ defmodule GameController.RemoteServerStatus do
 
   def pub_sub_name, do: "remote_server_status"
 
-  # TODO add tests ffs!
-  # TODO add a last_updated for the power, so that you can display it on the frontend
   def start_link([]) do
     GenServer.start_link(__MODULE__, initial_state())
   end

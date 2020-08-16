@@ -132,7 +132,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert ResponseParser.power_off(response) == :already_stopped
+      assert ResponseParser.power_off(response) == :powered_off
     end
 
     test "when its stopping now" do

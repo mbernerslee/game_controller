@@ -1,7 +1,7 @@
 #!/bin/bash
 
 find_todos() {
-  find_result=$(git grep TODO -- './*' ':!build')
+  find_result=$(git grep TODO -- './*' ':!build' ':!TODO')
   result=$?
   if [ $result -eq 0 ]; then
     echo "TODO found in:"
@@ -23,7 +23,7 @@ if [ "$LIVE_VIEW_SIGNING_SALT" == "" ]; then
   export LIVE_VIEW_SIGNING_SALT=fakeliveViewSigningSalt
 fi
 
-#run_action "find_todos"
+run_action "find_todos"
 run_action "mix deps.get"
 run_action "yarn --cwd assets install"
 run_action "yarn --cwd assets deploy"
