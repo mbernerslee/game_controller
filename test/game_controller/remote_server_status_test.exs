@@ -18,6 +18,15 @@ defmodule GameController.RemoteServerStatusTest do
     end)
   end
 
+  test "its initial state" do
+    Application.put_env(:game_controller, :remote_game_server_api, InMemoryPoweredOn)
+
+    assert RemoteServerStatus.initial_state() == %{
+             power: :running,
+             seconds_since_power_checked: 0
+           }
+  end
+
   describe "power_status/0" do
     test "when it's on" do
       pid = start_remote_server_status(InMemoryPoweredOn)

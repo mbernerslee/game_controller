@@ -1,3 +1,2 @@
-  # TODO add a last_updated for the power, so that you can display it on the frontend
   # TODO user authentication via sending them an email
-  # TODO add verified email boolean to users table which is also a login blocker if false
+    - add verified email boolean to users table which is also a login blocker if false

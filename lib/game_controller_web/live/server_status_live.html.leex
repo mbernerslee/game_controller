@@ -3,12 +3,12 @@
 <div class="power-status">
   <%= case @power do %>
     <%= :running -> %>
-      <div>He's running</div>
+      <div>He's running (last checked <%= display_time(@seconds_since_power_checked) %> ago)</div>
+    <% :powered_off -> %>
+      <div>He's off zzzzzzz (last checked <%= display_time(@seconds_since_power_checked) %> ago) </div>
     <% :powering_on -> %>
       <div>He's starting up...</div>
       <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
-    <% :powered_off -> %>
-      <div>He's off zzzzzzz</div>
     <% :fetching_power_status -> %>
       <div>Fetching power status...</div>
       <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
