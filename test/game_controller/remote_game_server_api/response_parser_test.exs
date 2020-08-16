@@ -105,7 +105,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert ResponseParser.power_on(api_response) == :starting_up
+      assert ResponseParser.power_on(api_response) == :powering_on
     end
 
     test "unknown if given unparsable jank" do
@@ -147,7 +147,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert ResponseParser.power_off(response) == :powering_down
+      assert ResponseParser.power_off(response) == :powering_off
     end
 
     test "when it retruns that its powering down" do
@@ -162,7 +162,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParserTest do
            ]
          }}
 
-      assert ResponseParser.power_off(response) == :powering_down
+      assert ResponseParser.power_off(response) == :powering_off
     end
 
     test "when given total jank" do

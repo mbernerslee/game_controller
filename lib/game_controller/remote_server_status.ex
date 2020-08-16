@@ -6,7 +6,6 @@ defmodule GameController.RemoteServerStatus do
   alias GameController.RemoteGameServerApi
 
   @name :remote_server_status
-  @transitional_power_states [:starting_up, :powering_down]
   def genserver_name, do: @name
 
   def pub_sub_name, do: "remote_server_status"
@@ -35,8 +34,8 @@ defmodule GameController.RemoteServerStatus do
     GenServer.call(pid, :power_off)
   end
 
-  def refetch_power_status(pid \\ @name) do
-    GenServer.call(pid, :refetch_power_status)
+  def refresh_power_status(pid \\ @name) do
+    GenServer.call(pid, :refresh_power_status)
   end
 
   @impl true
@@ -50,13 +49,16 @@ defmodule GameController.RemoteServerStatus do
     {:reply, server_status.power, server_status}
   end
 
+  @transitional_power_states [:powering_on, :powering_off]
+
   def handle_call(:power_on, _from, server_status) do
     if server_status.power in [:running | @transitional_power_states] do
       {:reply, server_status.power, server_status}
     else
       spawn_link(fn -> RemoteGameServerApi.power_on() end)
-      check_until_powered_on()
-      server_status = broadcast_and_update_power_status(:starting_up, server_status)
+      pid = self()
+      check_until_powered_on(pid)
+      server_status = broadcast_and_update_power_status(:powering_on, server_status)
       debug_log(server_status)
       {:reply, server_status.power, server_status}
     end
@@ -66,15 +68,16 @@ defmodule GameController.RemoteServerStatus do
     if server_status.power in [:powered_off | @transitional_power_states] do
       {:reply, server_status.power, server_status}
     else
+      pid = self()
       spawn_link(fn -> RemoteGameServerApi.power_off() end)
-      check_until_powered_down()
-      server_status = broadcast_and_update_power_status(:powering_down, server_status)
+      check_until_powered_down(pid)
+      server_status = broadcast_and_update_power_status(:powering_off, server_status)
       debug_log(server_status)
       {:reply, server_status.power, server_status}
     end
   end
 
-  def handle_call(:refetch_power_status, _from, server_status) do
+  def handle_call(:refresh_power_status, _from, server_status) do
     if server_status.power in @transitional_power_states do
       {:reply, server_status.power, server_status}
     else
@@ -98,17 +101,17 @@ defmodule GameController.RemoteServerStatus do
     Logger.debug("#{__MODULE__} - '#{power_status}' - #{msg}")
   end
 
-  defp check_until_powered_down do
+  defp check_until_powered_down(pid) do
     spawn_link(fn ->
       Process.sleep(2_000)
-      GenServer.cast(@name, :check_until_powered_down)
+      GenServer.cast(pid, :check_until_powered_down)
     end)
   end
 
-  defp check_until_powered_on do
+  defp check_until_powered_on(pid) do
     spawn_link(fn ->
       Process.sleep(2_000)
-      GenServer.cast(@name, :check_until_powered_on)
+      GenServer.cast(pid, :check_until_powered_on)
     end)
   end
 
@@ -127,7 +130,8 @@ defmodule GameController.RemoteServerStatus do
 
       _ ->
         debug_log(server_status, "still checking until powered on...")
-        check_until_powered_on()
+        pid = self()
+        check_until_powered_on(pid)
         {:noreply, server_status}
     end
   end
@@ -141,7 +145,8 @@ defmodule GameController.RemoteServerStatus do
 
       _ ->
         debug_log(server_status, "still checking until powered down...")
-        check_until_powered_down()
+        pid = self()
+        check_until_powered_down(pid)
         {:noreply, server_status}
     end
   end

@@ -6,8 +6,8 @@ defmodule GameController.RemoteServerStatusTest do
   alias GameController.RemoteGameServerApi.{
     InMemoryPoweredOn,
     InMemoryPoweredOff,
-    InMemoryStaringUp,
-    InMemoryPoweringDown
+    InMemoryPoweringOn,
+    InMemoryPoweringOff
   }
 
   @moduletag :slow_tests
@@ -18,15 +18,14 @@ defmodule GameController.RemoteServerStatusTest do
     end)
   end
 
-  # TODO consistent naming of atoms. power_on, starting_up (instead of powering_up) etc etc
   describe "power_status/0" do
     test "when it's on" do
       pid = start_remote_server_status(InMemoryPoweredOn)
       assert RemoteServerStatus.power_status(pid) == :running
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.refetch_power_status(pid) == :fetching_power_status
-      assert_receive {:trace, ^pid, :receive, {_, _, :refetch_power_status}}
+      assert RemoteServerStatus.refresh_power_status(pid) == :fetching_power_status
+      assert_receive {:trace, ^pid, :receive, {_, _, :refresh_power_status}}
       assert_receive {:trace, ^pid, :receive, {_, {:fetched_power_status, :running}}}
       refute_receive {:trace, ^pid, :receive, _}
     end
@@ -36,29 +35,29 @@ defmodule GameController.RemoteServerStatusTest do
       assert RemoteServerStatus.power_status(pid) == :powered_off
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.refetch_power_status(pid) == :fetching_power_status
-      assert_receive {:trace, ^pid, :receive, {_, _, :refetch_power_status}}
+      assert RemoteServerStatus.refresh_power_status(pid) == :fetching_power_status
+      assert_receive {:trace, ^pid, :receive, {_, _, :refresh_power_status}}
       assert_receive {:trace, ^pid, :receive, {_, {:fetched_power_status, :powered_off}}}
       refute_receive {:trace, ^pid, :receive, _}
     end
 
-    test "when it's starting_up" do
-      pid = start_remote_server_status(InMemoryStaringUp)
-      assert RemoteServerStatus.power_status(pid) == :starting_up
+    test "when it's powering_on" do
+      pid = start_remote_server_status(InMemoryPoweringOn)
+      assert RemoteServerStatus.power_status(pid) == :powering_on
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.refetch_power_status(pid) == :starting_up
-      assert_receive {:trace, ^pid, :receive, {_, _, :refetch_power_status}}
+      assert RemoteServerStatus.refresh_power_status(pid) == :powering_on
+      assert_receive {:trace, ^pid, :receive, {_, _, :refresh_power_status}}
       refute_receive {:trace, ^pid, :receive, _}
     end
 
-    test "when it's powering off, refetch_power_status does nothing" do
-      pid = start_remote_server_status(InMemoryPoweringDown)
-      assert RemoteServerStatus.power_status(pid) == :powering_down
+    test "when it's powering off, refresh_power_status does nothing" do
+      pid = start_remote_server_status(InMemoryPoweringOff)
+      assert RemoteServerStatus.power_status(pid) == :powering_off
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.refetch_power_status(pid) == :powering_down
-      assert_receive {:trace, ^pid, :receive, {_, _, :refetch_power_status}}
+      assert RemoteServerStatus.refresh_power_status(pid) == :powering_off
+      assert_receive {:trace, ^pid, :receive, {_, _, :refresh_power_status}}
       refute_receive {:trace, ^pid, :receive, _}
     end
   end
@@ -75,25 +74,25 @@ defmodule GameController.RemoteServerStatusTest do
     test "when off" do
       pid = start_remote_server_status(InMemoryPoweredOff)
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.power_on(pid) == :starting_up
+      assert RemoteServerStatus.power_on(pid) == :powering_on
       assert_receive {:trace, ^pid, :receive, {_, _, :power_on}}
       refute_receive {:trace, ^pid, :receive, _}
     end
 
     test "when starting up" do
-      pid = start_remote_server_status(InMemoryStaringUp)
-      assert RemoteServerStatus.power_status(pid) == :starting_up
+      pid = start_remote_server_status(InMemoryPoweringOn)
+      assert RemoteServerStatus.power_status(pid) == :powering_on
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.power_on(pid) == :starting_up
+      assert RemoteServerStatus.power_on(pid) == :powering_on
       assert_receive {:trace, ^pid, :receive, {_, _, :power_on}}
       refute_receive {:trace, ^pid, :receive, _}
     end
 
     test "when powering down" do
-      pid = start_remote_server_status(InMemoryPoweringDown)
+      pid = start_remote_server_status(InMemoryPoweringOff)
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.power_on(pid) == :powering_down
+      assert RemoteServerStatus.power_on(pid) == :powering_off
       assert_receive {:trace, ^pid, :receive, {_, _, :power_on}}
       refute_receive {:trace, ^pid, :receive, _}
     end
@@ -103,7 +102,7 @@ defmodule GameController.RemoteServerStatusTest do
     test "when on" do
       pid = start_remote_server_status(InMemoryPoweredOn)
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.power_off(pid) == :powering_down
+      assert RemoteServerStatus.power_off(pid) == :powering_off
       assert_receive {:trace, ^pid, :receive, {_, _, :power_off}}
       refute_receive {:trace, ^pid, :receive, _}
     end
@@ -117,21 +116,21 @@ defmodule GameController.RemoteServerStatusTest do
     end
 
     test "when starting up" do
-      pid = start_remote_server_status(InMemoryStaringUp)
-      assert RemoteServerStatus.power_status(pid) == :starting_up
+      pid = start_remote_server_status(InMemoryPoweringOn)
+      assert RemoteServerStatus.power_status(pid) == :powering_on
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.power_off(pid) == :starting_up
+      assert RemoteServerStatus.power_off(pid) == :powering_on
       assert_receive {:trace, ^pid, :receive, {_, _, :power_off}}
       refute_receive {:trace, ^pid, :receive, _}
     end
 
     test "when powering off" do
-      pid = start_remote_server_status(InMemoryPoweringDown)
-      assert RemoteServerStatus.power_status(pid) == :powering_down
+      pid = start_remote_server_status(InMemoryPoweringOff)
+      assert RemoteServerStatus.power_status(pid) == :powering_off
 
       :erlang.trace(pid, true, [:receive])
-      assert RemoteServerStatus.power_off(pid) == :powering_down
+      assert RemoteServerStatus.power_off(pid) == :powering_off
       assert_receive {:trace, ^pid, :receive, {_, _, :power_off}}
       refute_receive {:trace, ^pid, :receive, _}
     end

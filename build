@@ -10,6 +10,16 @@ find_todos() {
   fi
 }
 
+find_io_inspects() {
+  find_result=$(git grep IO.inspect -- './*' ':!build')
+  result=$?
+  if [ $result -eq 0 ]; then
+    echo "IO.inspect found in:"
+    echo "$find_result" | while read -r res; do echo " - $res"; done
+    exit 1
+  fi
+}
+
 . ./scripts/beautifier
 
 # putting in some fake env vars so that the prod config can be loaded
@@ -24,6 +34,7 @@ if [ "$LIVE_VIEW_SIGNING_SALT" == "" ]; then
 fi
 
 run_action "find_todos"
+run_action "find_io_inspects"
 run_action "mix deps.get"
 run_action "yarn --cwd assets install"
 run_action "yarn --cwd assets deploy"

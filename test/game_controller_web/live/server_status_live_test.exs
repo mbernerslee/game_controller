@@ -10,7 +10,7 @@ defmodule GameControllerWeb.ServerStatusLiveTest do
 
   @html_apostrophe_s "&apos;s"
   @fecthing_power_status "Fetching power status..."
-  @powering_down "Powering him down..."
+  @powering_off "Powering him down..."
   @powering_on "He#{@html_apostrophe_s} starting up..."
   @running "He#{@html_apostrophe_s} running"
 
@@ -25,9 +25,10 @@ defmodule GameControllerWeb.ServerStatusLiveTest do
       |> live(Routes.server_status_path(conn, :show))
 
     html = render_click(view, :power_off)
+    assert html =~ @powering_off
+
     refute html =~ @fecthing_power_status
     refute html =~ @powering_on
-    assert html =~ @powering_down
     refute html =~ @running
   end
 
@@ -40,10 +41,11 @@ defmodule GameControllerWeb.ServerStatusLiveTest do
       |> live(Routes.server_status_path(conn, :show))
 
     html = render_click(view, :power_on)
+    assert html =~ @running
+
     refute html =~ @fecthing_power_status
     refute html =~ @powering_on
-    refute html =~ @powering_down
-    assert html =~ @running
+    refute html =~ @powering_off
   end
 
   test "refreshing the server status", %{conn: conn} do
@@ -54,10 +56,11 @@ defmodule GameControllerWeb.ServerStatusLiveTest do
       |> TestSetup.logged_in_user_conn()
       |> live(Routes.server_status_path(conn, :show))
 
-    html = render_click(view, :refetch_power_status)
+    html = render_click(view, :refresh_power_status)
     assert html =~ @fecthing_power_status
+
     refute html =~ @powering_on
-    refute html =~ @powering_down
+    refute html =~ @powering_off
     refute html =~ @running
   end
 end

@@ -51,10 +51,10 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
         :powered_off
 
       {"running", "stopping"} ->
-        :powering_down
+        :powering_off
 
       {"running", "stopped"} ->
-        :powering_down
+        :powering_off
 
       _ ->
         {:error, response}
@@ -81,7 +81,7 @@ defmodule GameController.RemoteGameServerApi.ResponseParser do
   defp do_power_on(current, previous, response) do
     case {current, previous} do
       {_, "running"} -> :running
-      {"pending", "stopped"} -> :starting_up
+      {"pending", "stopped"} -> :powering_on
       _ -> {:error, response}
     end
   end

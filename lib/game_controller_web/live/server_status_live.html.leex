@@ -4,7 +4,7 @@
   <%= case @power do %>
     <%= :running -> %>
       <div>He's running</div>
-    <% :starting_up -> %>
+    <% :powering_on -> %>
       <div>He's starting up...</div>
       <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
     <% :powered_off -> %>
@@ -12,7 +12,7 @@
     <% :fetching_power_status -> %>
       <div>Fetching power status...</div>
       <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
-    <% :powering_down -> %>
+    <% :powering_off -> %>
       <div>Powering him down...</div>
       <img class="fidget_spinner" src="<%= GameControllerWeb.Router.Helpers.static_path(GameControllerWeb.Endpoint, "/images/fidget_spinner.svg") %>">
     <% _ -> %>
@@ -21,8 +21,8 @@
 </div>
 
 
-<%= unless @power in [:starting_up, :fetching_power_status, :powering_down] do %>
-  <div><button phx-click="refetch_power_status">Check power status again now</button></div>
+<%= unless @power in [:powering_on, :fetching_power_status, :powering_off] do %>
+  <div><button phx-click="refresh_power_status">Check power status again now</button></div>
 <% end %>
 
 <%= if @power in [:running, :unknown] do %>
