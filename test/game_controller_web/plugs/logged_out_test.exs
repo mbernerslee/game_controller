@@ -20,7 +20,7 @@ defmodule GameControllerWeb.Plugs.LoggedOutTest do
       assert conn.halted
     end
 
-    test "with valid session redirects to /", %{conn: conn} do
+    test "with valid session redirects to chat", %{conn: conn} do
       conn = conn |> TestSetup.logged_in_user_conn() |> LoggedOut.call()
       assert redirected_to(conn, 302) == "/"
     end

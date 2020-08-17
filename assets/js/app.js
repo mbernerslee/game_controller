@@ -18,11 +18,39 @@ import "phoenix_html"
 import {Socket} from "phoenix"
 import LiveSocket from "phoenix_live_view"
 
-let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  function process(e, x) {
+    if (e.key == "Enter") {
+      x.value = "";
+    }
+  }
+
+  window.process = process
+
+  let Hooks = {}
+
+  Hooks.MyTextArea = {
+    updated(){
+      console.log(this.el.value);
+      console.log(this.el.dataset.pendingVal);
+      this.el.value = this.el.dataset.pendingVal
+    }
+  }
+
+  let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+  let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})
+
+  liveSocket.connect()
+
+  window.liveSocket = liveSocket
+}, false);
+
+
 
 // Connect if there are any LiveViews on the page
-liveSocket.connect()
 
 // Expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
@@ -30,4 +58,4 @@ liveSocket.connect()
 // The latency simulator is enabled for the duration of the browser session.
 // Call disableLatencySim() to disable:
 // >> liveSocket.disableLatencySim()
-window.liveSocket = liveSocket
+

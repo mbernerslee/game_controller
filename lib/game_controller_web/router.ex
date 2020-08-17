@@ -31,6 +31,8 @@ defmodule GameControllerWeb.Router do
       put "/test-logins", TestLoginsController, :reseed
     end
 
+    live "/chat", ChatUnAuthLive, :show
+
     scope "/" do
       pipe_through :logged_out
 
