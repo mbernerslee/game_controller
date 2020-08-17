@@ -11,8 +11,8 @@ defmodule GameController.TestSetup do
     |> Conn.assign(:user_session, user_session)
   end
 
-  def start_chat_unauth_instance(initial_state) do
-    id = 8 |> :crypto.strong_rand_bytes() |> Base.encode64()
-    ExUnit.Callbacks.start_supervised(Supervisor.child_spec({ChatUnAuth, initial_state}, id: id))
-  end
+  # def start_chat_unauth_instance(initial_state) do
+  #  id = 8 |> :crypto.strong_rand_bytes() |> Base.encode64()
+  #  ExUnit.Callbacks.start_supervised(Supervisor.child_spec({ChatUnAuth, initial_state}, id: id))
+  # end
 end

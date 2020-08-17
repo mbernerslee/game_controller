@@ -15,7 +15,6 @@
       <section class="container">
         <nav role="navigation">
           <ul>
-            <li><%= link "Chat", to: Routes.chat_un_auth_path(@conn, :show) %></li>
             <% logged_in = Auth.has_session?(@conn) %>
             <%= if logged_in do %>
               <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
