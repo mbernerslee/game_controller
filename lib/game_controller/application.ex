@@ -19,7 +19,6 @@ defmodule GameController.Application do
       # Start a worker by calling: GameController.Worker.start_link(arg)
       # {GameController.Worker, arg}
       {RemoteServerStatus, RemoteServerStatus.initial_state()},
-      {ChatUnAuth, ChatUnAuth.initial_state()}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
