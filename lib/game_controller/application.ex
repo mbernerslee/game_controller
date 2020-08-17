@@ -4,7 +4,7 @@ defmodule GameController.Application do
   @moduledoc false
 
   use Application
-  alias GameController.{ChatUnAuth, RemoteServerStatus}
+  alias GameController.RemoteServerStatus
 
   def start(_type, _args) do
     children = [
@@ -18,7 +18,7 @@ defmodule GameController.Application do
       GameControllerWeb.Endpoint,
       # Start a worker by calling: GameController.Worker.start_link(arg)
       # {GameController.Worker, arg}
-      {RemoteServerStatus, RemoteServerStatus.initial_state()},
+      {RemoteServerStatus, RemoteServerStatus.initial_state()}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
